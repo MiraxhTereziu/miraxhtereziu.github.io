@@ -61,7 +61,6 @@
             margin-bottom: 3rem;
         }
 
-        /* Optimization: The grid item acts as a placeholder */
         .gallery-item {
             position: relative;
             overflow: hidden;
@@ -142,7 +141,7 @@
     </div>
 
     <script>
-        // Filenames stay the same
+        // List of images from your file
         const imageFiles = [
             'P1130718.jpg', 'P1140315.jpg', 'P1140524.jpg', 'P1130741.jpg',
             'P1130691.jpg', 'P1140076.jpg', 'P1140095.jpg', 'P1140114.jpg',
@@ -161,18 +160,18 @@
             item.className = 'gallery-item';
             
             const img = document.createElement('img');
-            // USE SMALL PREVIEW FOR THE GRID
-            // You must create an 'images/thumbnails/' folder with small versions
+            
+            // LAZY LOADING REMOVED: Browser will now download all these immediately
             img.src = `images/thumbnails/${filename}`; 
             img.alt = filename;
-            img.loading = "lazy"; // Native lazy loading
 
+            // Fade-in when thumbnail is ready
             img.onload = () => img.classList.add('loaded');
             
             item.appendChild(img);
             galleryGrid.appendChild(item);
             
-            // USE HIGH-RES FOR THE LIGHTBOX
+            // High-res still only loads when user clicks
             item.onclick = () => {
                 lightboxImg.src = `images/${filename}`;
                 lightbox.classList.add('active');
@@ -183,7 +182,7 @@
         function closeLightbox() {
             lightbox.classList.remove('active');
             document.body.style.overflow = 'auto';
-            lightboxImg.src = ''; // Performance trick: clear the high-res image from memory
+            lightboxImg.src = ''; 
         }
 
         document.getElementById('lightboxClose').onclick = closeLightbox;

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photography Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Work+Sans:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        h1 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            font-weight: 300;
+            color: #666;
+        }
+
+
+
+        /* Gallery Section */
+        .gallery-section {
+            padding: 3rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #1a1a1a;
+        }
+
+        /* Simple Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            background: #f5f5f5;
+            cursor: pointer;
+            aspect-ratio: 1/1;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: opacity 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            opacity: 0.85;
+        }
+
+
+
+
+
+
+
+        /* Footer */
+        footer {
+            padding: 2rem;
+            text-align: center;
+            color: #999;
+            font-size: 0.85rem;
+            font-weight: 300;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            font-size: 2rem;
+            color: #1a1a1a;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #1a1a1a;
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Your Name</h1>
+        <p class="tagline">Photography</p>
+    </header>
+
+    <section id="gallery" class="gallery-section">
+        <h2 class="section-title">Gallery</h2>
+        <div class="gallery-grid" id="galleryGrid">
+            <!-- Images will be automatically loaded from the 'images' folder -->
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Your Name</p>
+    </footer>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-close" id="lightboxClose">✕</div>
+        <img id="lightboxImg" src="" alt="Enlarged photo">
+    </div>
+
+    <script>
+        // Load images from the 'images' folder automatically
+        // You can add your image filenames here
+        const imageFiles = [
+            'photo1.jpg',
+            'photo2.jpg',
+            'photo3.jpg',
+            'photo4.jpg',
+            'photo5.jpg',
+            'photo6.jpg'
+            // Add more filenames as needed
+        ];
+
+        const galleryGrid = document.getElementById('galleryGrid');
+
+        // Clear placeholder images
+        galleryGrid.innerHTML = '';
+
+        // Load images from the images folder
+        imageFiles.forEach(filename => {
+            const item = document.createElement('div');
+            item.className = 'gallery-item';
+            
+            const img = document.createElement('img');
+            img.src = `images/${filename}`;
+            img.alt = filename.replace(/\.[^/.]+$/, '');
+            
+            item.appendChild(img);
+            galleryGrid.appendChild(item);
+            
+            // Add lightbox functionality
+            item.addEventListener('click', () => openLightbox(`images/${filename}`));
+        });
+
+
+        // Lightbox functionality
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxClose = document.getElementById('lightboxClose');
+
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
+        });
+
+    </script>
+</body>
+</html>

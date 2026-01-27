@@ -42,8 +42,6 @@
             color: #666;
         }
 
-
-
         /* Gallery Section */
         .gallery-section {
             padding: 3rem 2rem;
@@ -60,7 +58,7 @@
             color: #1a1a1a;
         }
 
-        /* Simple Grid */
+        /* Improved Grid */
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -71,7 +69,7 @@
         .gallery-item {
             position: relative;
             overflow: hidden;
-            background: #f5f5f5;
+            background: #f5f5f5; /* Placeholder color while loading */
             cursor: pointer;
             aspect-ratio: 1/1;
         }
@@ -81,18 +79,18 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            transition: opacity 0.3s ease;
+            opacity: 0; /* Hidden by default to prevent "jagged" loading */
+            transition: opacity 0.8s ease-in-out; /* Smooth fade-in effect */
         }
 
-        .gallery-item:hover img {
+        /* This class is added via JS once the image has finished downloading */
+        .gallery-item img.loaded {
+            opacity: 1;
+        }
+
+        .gallery-item:hover img.loaded {
             opacity: 0.85;
         }
-
-
-
-
-
-
 
         /* Footer */
         footer {
@@ -153,14 +151,8 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            .section-title {
-                font-size: 1.5rem;
-            }
-
+            h1 { font-size: 2rem; }
+            .section-title { font-size: 1.5rem; }
             .gallery-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
@@ -176,73 +168,56 @@
 
     <section id="gallery" class="gallery-section">
         <h2 class="section-title">Gallery</h2>
-        <div class="gallery-grid" id="galleryGrid">
-            <!-- Images will be automatically loaded from the 'images' folder -->
-        </div>
+        <div class="gallery-grid" id="galleryGrid"></div>
     </section>
 
     <footer>
         <p>&copy; 2026 Miraxh Tereziu</p>
     </footer>
 
-    <!-- Lightbox -->
     <div class="lightbox" id="lightbox">
         <div class="lightbox-close" id="lightboxClose">✕</div>
         <img id="lightboxImg" src="" alt="Enlarged photo">
     </div>
 
     <script>
-        // Load images from the 'images' folder automatically
-        // You can add your image filenames here
         const imageFiles = [
-            'P1130718.jpg',
-            'P1140315.jpg',
-            'P1140524.jpg',
-            'P1130741.jpg',
-            'P1130691.jpg',
-            'P1140076.jpg',
-            'P1140095.jpg',
-            'P1140114.jpg',
-            'P1140116.jpg',
-            'P1140138.jpg',
-            'P1140150.jpg',
-            'P1140238.jpg',
-            'P1140247.jpg',
-            'P1140259.jpg',
-            'P1140275.jpg',
-            'P1140442.jpg',
-            'P1140452.jpg',
-            'P1140459-2.jpg',
-            'P1140495.jpg',
-            'P1140509.jpg',
-            'P1140518.jpg',
-            'P1140552.jpg'
-            // Add more filenames as needed
+            'P1130718.jpg', 'P1140315.jpg', 'P1140524.jpg', 'P1130741.jpg',
+            'P1130691.jpg', 'P1140076.jpg', 'P1140095.jpg', 'P1140114.jpg',
+            'P1140116.jpg', 'P1140138.jpg', 'P1140150.jpg', 'P1140238.jpg',
+            'P1140247.jpg', 'P1140259.jpg', 'P1140275.jpg', 'P1140442.jpg',
+            'P1140452.jpg', 'P1140459-2.jpg', 'P1140495.jpg', 'P1140509.jpg',
+            'P1140518.jpg', 'P1140552.jpg'
         ];
 
         const galleryGrid = document.getElementById('galleryGrid');
-
-        // Clear placeholder images
         galleryGrid.innerHTML = '';
 
-        // Load images from the images folder
         imageFiles.forEach(filename => {
             const item = document.createElement('div');
             item.className = 'gallery-item';
             
             const img = document.createElement('img');
+            
+            // OPTIMIZATION 1: Native Lazy Loading
+            // Tells the browser not to download this image until it's about to enter the viewport
+            img.setAttribute('loading', 'lazy');
+            
             img.src = `images/${filename}`;
             img.alt = filename.replace(/\.[^/.]+$/, '');
+            
+            // OPTIMIZATION 2: Fade-in on Load
+            // Instead of seeing the image load line-by-line, it fades in smoothly once ready
+            img.onload = () => {
+                img.classList.add('loaded');
+            };
             
             item.appendChild(img);
             galleryGrid.appendChild(item);
             
-            // Add lightbox functionality
             item.addEventListener('click', () => openLightbox(`images/${filename}`));
         });
 
-
-        // Lightbox functionality
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightboxImg');
         const lightboxClose = document.getElementById('lightboxClose');
@@ -256,13 +231,13 @@
         function closeLightbox() {
             lightbox.classList.remove('active');
             document.body.style.overflow = 'auto';
+            lightboxImg.src = ''; // Clear source to save memory
         }
 
         lightboxClose.addEventListener('click', closeLightbox);
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) closeLightbox();
         });
-
     </script>
 </body>
 </html>

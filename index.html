@@ -73,6 +73,8 @@
         break-inside: avoid;
         background: #f5f5f5;
         cursor: pointer;
+        border-radius: 6px; /* Added radius to the frame */
+        overflow: hidden; /* Ensures image doesn't bleed past corners */
       }
 
       .gallery-item img {
@@ -81,6 +83,7 @@
         display: block;
         opacity: 0;
         transition: opacity 0.5s ease-in-out;
+        border-radius: 6px; /* Added radius to the image */
       }
 
       .gallery-item img.loaded {
@@ -115,9 +118,9 @@
         max-height: 85vh;
         object-fit: contain;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 12px; /* Slightly larger radius for the preview mode */
       }
 
-      /* Navigation Buttons */
       .nav-btn {
         position: absolute;
         top: 50%;
@@ -160,7 +163,6 @@
       }
 
       /* --- RESPONSIVE BREAKPOINTS --- */
-
       @media (max-width: 1600px) {
         .gallery-grid {
           column-count: 3;
@@ -318,19 +320,15 @@
       const lightbox = document.getElementById("lightbox");
       const lightboxImg = document.getElementById("lightboxImg");
 
-      // Build Gallery
       imageFiles.forEach((filename, index) => {
         const item = document.createElement("div");
         item.className = "gallery-item";
-
         const img = document.createElement("img");
         img.src = `images/thumbnails/${filename}`;
         img.alt = filename;
         img.onload = () => img.classList.add("loaded");
-
         item.appendChild(img);
         galleryGrid.appendChild(item);
-
         item.onclick = () => openLightbox(index);
       });
 
@@ -358,7 +356,6 @@
         lightboxImg.src = `images/${imageFiles[currentIndex]}`;
       }
 
-      // Listeners
       document.getElementById("lightboxClose").onclick = closeLightbox;
       document.getElementById("nextBtn").onclick = (e) => {
         e.stopPropagation();
@@ -368,12 +365,10 @@
         e.stopPropagation();
         showPrev();
       };
-
       lightbox.onclick = (e) => {
         if (e.target === lightbox) closeLightbox();
       };
 
-      // Keyboard Support
       document.addEventListener("keydown", (e) => {
         if (!lightbox.classList.contains("active")) return;
         if (e.key === "ArrowRight") showNext();

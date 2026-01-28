@@ -19,24 +19,31 @@
   </head>
   <body>
     <header>
-      <h1>Miraxh Tereziu</h1>
-      <p class="tagline">
-        Just having fun, trying to improve every shot I take
-      </p>
+      <div class="sidebar-top">
+        <h1>Miraxh Tereziu</h1>
+        <p class="tagline">
+          Just having fun, trying to improve every shot I take
+        </p>
+      </div>
+
+      <div class="sidebar-footer">
+        <p>
+          All images are free to use without any copyright. This website does
+          not collect cookies.
+        </p>
+      </div>
     </header>
 
-    <section id="gallery" class="gallery-section">
+    <main class="gallery-section">
       <div class="gallery-grid" id="galleryGrid"></div>
-    </section>
+    </main>
 
     <div class="lightbox" id="lightbox">
       <div class="lightbox-close" id="lightboxClose">✕</div>
-      <button class="nav-btn prev-btn" id="prevBtn">‹</button>
       <div class="lightbox-content">
-        <img id="lightboxImg" src="" alt="Enlarged" class="loading" />
+        <img id="lightboxImg" src="" alt="Enlarged" />
         <div id="metadataDisplay" class="metadata-bar"></div>
       </div>
-      <button class="nav-btn next-btn" id="nextBtn">›</button>
     </div>
 
     <script src="script.js"></script>

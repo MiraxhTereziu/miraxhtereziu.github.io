@@ -27,8 +27,8 @@ header {
 
 h1 {
   font-family: "Work Sans", sans-serif;
-  font-weight: 500; /* Set to 500 as requested */
-  font-size: 3rem;
+  font-weight: 500;
+  font-size: 4rem;
   margin-bottom: 0.5rem;
   line-height: 1.05;
   letter-spacing: -1px;
@@ -43,6 +43,8 @@ h1 {
   font-size: 0.75rem;
   color: #bbb;
   line-height: 1.4;
+  padding-bottom: 1.5rem;
+  padding-top: 0.5rem;
 }
 
 /* --- GALLERY SECTION --- */
@@ -54,6 +56,16 @@ h1 {
 .gallery-grid {
   column-count: 4;
   column-gap: 1rem;
+  animation: gridFadeIn 2.5s ease-out forwards;
+}
+
+@keyframes gridFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .gallery-item {
@@ -62,22 +74,36 @@ h1 {
   cursor: pointer;
   border-radius: 4px;
   overflow: hidden;
-  background-color: #f9f9f9;
+  background-color: transparent;
+  transition: opacity 0.2s ease;
 }
 
 .gallery-item img {
   width: 100%;
   display: block;
   opacity: 0;
-  transition: opacity 0.6s ease; /* Removed transform from transition */
+  pointer-events: none;
 }
 
+/* THE 3s BLOOM EFFECT */
 .gallery-item img.loaded {
-  opacity: 1;
+  animation: bloomIn 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-.gallery-item:hover img.loaded {
-  opacity: 0.75; /* Only opacity change, no zoom */
+@keyframes bloomIn {
+  from {
+    opacity: 0;
+    filter: brightness(0.7) grayscale(0.2);
+  }
+  to {
+    opacity: 1;
+    filter: brightness(1) grayscale(0);
+  }
+}
+
+/* SNAPPY HOVER */
+.gallery-item:hover {
+  opacity: 0.7;
 }
 
 /* --- LIGHTBOX --- */
@@ -95,6 +121,7 @@ h1 {
 }
 .lightbox.active {
   display: flex;
+  opacity: 1 !important;
 }
 .lightbox-content {
   display: flex;
@@ -112,13 +139,13 @@ h1 {
 }
 
 .lightbox img.animate-in {
-  animation: imageReveal 0.4s ease-out forwards;
+  animation: imageReveal 0.5s ease-out forwards;
 }
 
 @keyframes imageReveal {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
@@ -134,7 +161,6 @@ h1 {
   letter-spacing: 2px;
 }
 
-/* Hiding the close button as requested */
 .lightbox-close {
   display: none;
 }

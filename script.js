@@ -6,16 +6,14 @@ const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightboxImg");
 const metadataDisplay = document.getElementById("metadataDisplay");
 
-// 1. Fetch
 fetch("images.json")
   .then((res) => res.json())
   .then((data) => {
     imageFiles = data;
-    shuffleArray(imageFiles); // SHUFFLE triggered here
+    shuffleArray(imageFiles);
     initGallery();
   });
 
-// 2. The Shuffle Function (Fisher-Yates)
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -23,7 +21,6 @@ function shuffleArray(array) {
   }
 }
 
-// 3. Initialize Gallery
 function initGallery() {
   const observer = new IntersectionObserver(
     (entries) => {
@@ -43,10 +40,15 @@ function initGallery() {
   imageFiles.forEach((file, index) => {
     const item = document.createElement("div");
     item.className = "gallery-item";
+
     const img = document.createElement("img");
     img.dataset.src = `images/thumbnails/${file}`;
     img.alt = file;
-    img.onload = () => img.classList.add("loaded");
+
+    img.onload = () => {
+      img.classList.add("loaded");
+    };
+
     item.appendChild(img);
     galleryGrid.appendChild(item);
     observer.observe(img);
@@ -54,7 +56,6 @@ function initGallery() {
   });
 }
 
-// 4. Lightbox Logic
 function openLightbox(index) {
   currentIndex = index;
   lightbox.classList.add("active");

@@ -6,13 +6,24 @@ const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightboxImg");
 const metadataDisplay = document.getElementById("metadataDisplay");
 
+// 1. Fetch
 fetch("images.json")
   .then((res) => res.json())
   .then((data) => {
     imageFiles = data;
+    shuffleArray(imageFiles); // SHUFFLE triggered here
     initGallery();
   });
 
+// 2. The Shuffle Function (Fisher-Yates)
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+// 3. Initialize Gallery
 function initGallery() {
   const observer = new IntersectionObserver(
     (entries) => {
@@ -43,6 +54,7 @@ function initGallery() {
   });
 }
 
+// 4. Lightbox Logic
 function openLightbox(index) {
   currentIndex = index;
   lightbox.classList.add("active");
@@ -56,6 +68,7 @@ function updateLightboxImage() {
   lightboxImg.classList.remove("animate-in");
   metadataDisplay.innerText = "";
   lightboxImg.src = `images/${filename}`;
+
   lightboxImg.onload = function () {
     lightboxImg.classList.add("animate-in");
     if (window.EXIF) {
@@ -91,7 +104,6 @@ function closeLightbox() {
   document.body.style.overflow = "auto";
 }
 
-// Even though button is hidden, clicking the background or pressing ESC still works
 lightbox.onclick = (e) => {
   if (e.target === lightbox) closeLightbox();
 };

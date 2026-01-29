@@ -56,7 +56,8 @@ h1 {
 .gallery-grid {
   column-count: 4;
   column-gap: 1rem;
-  animation: gridFadeIn 5s ease-out forwards;
+  /* cubic-bezier(0.7, 0, 0.84, 0) starts very flat/slow and accelerates */
+  animation: gridFadeIn 3.5s cubic-bezier(0.7, 0, 0.84, 0) forwards;
 }
 
 @keyframes gridFadeIn {

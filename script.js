@@ -1,6 +1,10 @@
 let imageFiles = [];
+let currentIndex = 0;
 
 const galleryGrid = document.getElementById("galleryGrid");
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightboxImg");
+const metadataDisplay = document.getElementById("metadataDisplay");
 
 fetch("images.json")
   .then((res) => res.json())
@@ -33,7 +37,7 @@ function initGallery() {
     { rootMargin: "800px" }
   );
 
-  imageFiles.forEach((file) => {
+  imageFiles.forEach((file, index) => {
     const item = document.createElement("div");
     item.className = "gallery-item";
 
@@ -50,9 +54,59 @@ function initGallery() {
     galleryGrid.appendChild(item);
     observer.observe(img);
 
-    // Change: Open the full-resolution image in a new tab instead of a lightbox
-    item.onclick = () => {
-      window.open(`images/${file}`, '_blank');
-    };
+    // Clicking a gallery item opens the Lightbox
+    item.onclick = () => openLightbox(index);
   });
 }
+
+function openLightbox(index) {
+  currentIndex = index;
+  lightbox.classList.add("active");
+  document.body.style.overflow = "hidden";
+  updateLightboxImage();
+}
+
+function updateLightboxImage() {
+  const filename = imageFiles[currentIndex];
+  lightboxImg.style.opacity = "0";
+  lightboxImg.classList.remove("animate-in");
+  metadataDisplay.innerText = "";
+  lightboxImg.src = `images/${filename}`;
+
+  lightboxImg.onload = function () {
+    lightboxImg.classList.add("animate-in");
+    if (window.EXIF) {
+      EXIF.getData(this, function () {
+        const model = EXIF.getTag(this, "Model") || "";
+        const fStop = EXIF.getTag(this, "FNumber") ? `f/${EXIF.getTag(this, "FNumber")}` : "";
+        const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `ISO ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
+        const exp = EXIF.getTag(this, "ExposureTime");
+        let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
+        metadataDisplay.innerText = model ? `${model} • ${fStop} • ${shutter} • ${iso}` : "";
+      });
+    }
+  };
+}
+
+function closeLightbox() {
+  lightbox.classList.remove("active");
+  document.body.style.overflow = "auto";
+}
+
+// Click background to close
+lightbox.onclick = (e) => {
+  if (e.target === lightbox) closeLightbox();
+};
+
+// CLICK IMAGE TO OPEN IN NEW TAB
+lightboxImg.onclick = (e) => {
+  e.stopPropagation(); // Prevents background click from closing lightbox
+  const filename = imageFiles[currentIndex];
+  window.open(`images/${filename}`, '_blank');
+};
+
+// Keyboard support
+document.addEventListener("keydown", (e) => {
+  if (!lightbox.classList.contains("active")) return;
+  if (e.key === "Escape") closeLightbox();
+});

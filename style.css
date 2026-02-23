@@ -55,32 +55,29 @@ h1 {
 
 .gallery-grid {
   column-count: 4;
-  column-gap: 1rem;
-  /* cubic-bezier(0.7, 0, 0.84, 0) starts very flat/slow and accelerates */
-  animation: gridFadeIn 5s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+  column-gap: 0.5em; /* Reduced spacing */
+  animation: gridFadeIn 3s ease-in-out forwards;
 }
 
 @keyframes gridFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .gallery-item {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5em; /* Reduced spacing */
   break-inside: avoid;
   cursor: pointer;
   border-radius: 4px;
   overflow: hidden;
-  background-color: transparent;
+  background-color: #f5f5f5; /* Placeholder color while loading */
+  min-height: 150px; /* Reduces layout shift */
   transition: opacity 0.2s ease;
 }
 
 .gallery-item img {
   width: 100%;
+  height: auto;
   display: block;
   opacity: 0;
   pointer-events: none;
@@ -88,13 +85,13 @@ h1 {
 
 /* THE 3s BLOOM EFFECT */
 .gallery-item img.loaded {
-  animation: bloomIn 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: bloomIn 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @keyframes bloomIn {
   from {
     opacity: 0;
-    filter: brightness(0.7) grayscale(0.2);
+    filter: brightness(0.8) grayscale(0.2);
   }
   to {
     opacity: 1;
@@ -102,7 +99,6 @@ h1 {
   }
 }
 
-/* SNAPPY HOVER */
 .gallery-item:hover {
   opacity: 0.7;
 }
@@ -122,7 +118,6 @@ h1 {
 }
 .lightbox.active {
   display: flex;
-  opacity: 1 !important;
 }
 .lightbox-content {
   display: flex;
@@ -163,16 +158,22 @@ h1 {
 }
 
 .lightbox-close {
-  display: none;
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;
+  z-index: 2001;
 }
 
 /* --- RESPONSIVE --- */
-@media (max-width: 1400px) {
+@media (max-width: 1600px) { /* Jump to 3 columns sooner */
   .gallery-grid {
     column-count: 3;
   }
 }
-@media (max-width: 900px) {
+@media (max-width: 1100px) { /* Break to mobile view sooner */
   body {
     flex-direction: column;
   }

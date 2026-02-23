@@ -5,6 +5,7 @@ const galleryGrid = document.getElementById("galleryGrid");
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightboxImg");
 const metadataDisplay = document.getElementById("metadataDisplay");
+const lightboxClose = document.getElementById("lightboxClose");
 
 fetch("images.json")
   .then((res) => res.json())
@@ -34,7 +35,7 @@ function initGallery() {
         }
       });
     },
-    { rootMargin: "400px" },
+    { rootMargin: "600px" }, // Increased margin for smoother "ahead of time" loading
   );
 
   imageFiles.forEach((file, index) => {
@@ -105,9 +106,13 @@ function closeLightbox() {
   document.body.style.overflow = "auto";
 }
 
+// Event Listeners
+lightboxClose.onclick = closeLightbox;
+
 lightbox.onclick = (e) => {
   if (e.target === lightbox) closeLightbox();
 };
+
 lightboxImg.onclick = (e) => {
   e.stopPropagation();
   navigate(1);

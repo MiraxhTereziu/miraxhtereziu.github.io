@@ -55,8 +55,8 @@ h1 {
 
 .gallery-grid {
   column-count: 4;
-  column-gap: 0.5em; /* Reduced spacing */
-  animation: gridFadeIn 3s ease-in-out forwards;
+  column-gap: 0.5em; /* Reduced space */
+  animation: gridFadeIn 2s ease-out forwards;
 }
 
 @keyframes gridFadeIn {
@@ -65,14 +65,44 @@ h1 {
 }
 
 .gallery-item {
-  margin-bottom: 0.5em; /* Reduced spacing */
+  margin-bottom: 0.5em; /* Reduced space */
   break-inside: avoid;
   cursor: pointer;
   border-radius: 4px;
   overflow: hidden;
-  background-color: #f5f5f5; /* Placeholder color while loading */
-  min-height: 150px; /* Reduces layout shift */
+  position: relative;
+  background-color: #f0f0f0;
+  min-height: 200px; /* Reserves space to prevent jitter */
   transition: opacity 0.2s ease;
+}
+
+/* Skeleton Shimmer Effect */
+.gallery-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(240, 240, 240, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(240, 240, 240, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  z-index: 1;
+}
+
+/* Hide shimmer when image is loaded */
+.gallery-item.loaded-container::before {
+  display: none;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 .gallery-item img {
@@ -80,27 +110,17 @@ h1 {
   height: auto;
   display: block;
   opacity: 0;
-  pointer-events: none;
+  position: relative;
+  z-index: 2;
+  transition: opacity 0.8s ease;
 }
 
-/* THE 3s BLOOM EFFECT */
 .gallery-item img.loaded {
-  animation: bloomIn 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-@keyframes bloomIn {
-  from {
-    opacity: 0;
-    filter: brightness(0.8) grayscale(0.2);
-  }
-  to {
-    opacity: 1;
-    filter: brightness(1) grayscale(0);
-  }
+  opacity: 1;
 }
 
 .gallery-item:hover {
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 /* --- LIGHTBOX --- */
@@ -139,14 +159,8 @@ h1 {
 }
 
 @keyframes imageReveal {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .metadata-bar {
@@ -161,10 +175,9 @@ h1 {
   position: absolute;
   top: 2rem;
   right: 2rem;
-  font-size: 1.5rem;
+  font-size: 2rem;
   cursor: pointer;
   color: #333;
-  z-index: 2001;
 }
 
 /* --- RESPONSIVE --- */
@@ -173,10 +186,8 @@ h1 {
     column-count: 3;
   }
 }
-@media (max-width: 1100px) { /* Break to mobile view sooner */
-  body {
-    flex-direction: column;
-  }
+@media (max-width: 1100px) {
+  body { flex-direction: column; }
   header {
     width: 100%;
     height: auto;
@@ -184,18 +195,10 @@ h1 {
     padding: 3rem 1.5rem;
     text-align: center;
   }
-  h1 {
-    font-size: 2.5rem;
-  }
-  .gallery-section {
-    padding: 1.5rem;
-  }
-  .gallery-grid {
-    column-count: 2;
-  }
+  h1 { font-size: 2.5rem; }
+  .gallery-section { padding: 1rem; }
+  .gallery-grid { column-count: 2; }
 }
 @media (max-width: 600px) {
-  .gallery-grid {
-    column-count: 1;
-  }
+  .gallery-grid { column-count: 1; }
 }

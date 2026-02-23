@@ -35,7 +35,7 @@ function initGallery() {
         }
       });
     },
-    { rootMargin: "600px" }, // Increased margin for smoother "ahead of time" loading
+    { rootMargin: "500px" } // Load images earlier as user scrolls
   );
 
   imageFiles.forEach((file, index) => {
@@ -48,6 +48,7 @@ function initGallery() {
 
     img.onload = () => {
       img.classList.add("loaded");
+      item.classList.add("loaded-container"); // Removes skeleton shimmer
     };
 
     item.appendChild(img);
@@ -76,21 +77,11 @@ function updateLightboxImage() {
     if (window.EXIF) {
       EXIF.getData(this, function () {
         const model = EXIF.getTag(this, "Model") || "";
-        const fStop = EXIF.getTag(this, "FNumber")
-          ? `f/${EXIF.getTag(this, "FNumber")}`
-          : "";
-        const iso = EXIF.getTag(this, "ISOSpeedRatings")
-          ? `ISO ${EXIF.getTag(this, "ISOSpeedRatings")}`
-          : "";
+        const fStop = EXIF.getTag(this, "FNumber") ? `f/${EXIF.getTag(this, "FNumber")}` : "";
+        const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `ISO ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
         const exp = EXIF.getTag(this, "ExposureTime");
-        let shutter = exp
-          ? exp >= 1
-            ? `${exp}s`
-            : `1/${Math.round(1 / exp)}s`
-          : "";
-        metadataDisplay.innerText = model
-          ? `${model} • ${fStop} • ${shutter} • ${iso}`
-          : "";
+        let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
+        metadataDisplay.innerText = model ? `${model} • ${fStop} • ${shutter} • ${iso}` : "";
       });
     }
   };
@@ -106,7 +97,7 @@ function closeLightbox() {
   document.body.style.overflow = "auto";
 }
 
-// Event Listeners
+// Event Bindings
 lightboxClose.onclick = closeLightbox;
 
 lightbox.onclick = (e) => {

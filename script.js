@@ -35,7 +35,7 @@ function initGallery() {
         }
       });
     },
-    { rootMargin: "500px" } // Load images earlier as user scrolls
+    { rootMargin: "800px" } // Increased margin to prevent jitter
   );
 
   imageFiles.forEach((file, index) => {
@@ -48,7 +48,7 @@ function initGallery() {
 
     img.onload = () => {
       img.classList.add("loaded");
-      item.classList.add("loaded-container"); // Removes skeleton shimmer
+      item.classList.add("loaded-container");
     };
 
     item.appendChild(img);
@@ -99,15 +99,8 @@ function closeLightbox() {
 
 // Event Bindings
 lightboxClose.onclick = closeLightbox;
-
-lightbox.onclick = (e) => {
-  if (e.target === lightbox) closeLightbox();
-};
-
-lightboxImg.onclick = (e) => {
-  e.stopPropagation();
-  navigate(1);
-};
+lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
+lightboxImg.onclick = (e) => { e.stopPropagation(); navigate(1); };
 
 document.addEventListener("keydown", (e) => {
   if (!lightbox.classList.contains("active")) return;

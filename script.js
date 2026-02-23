@@ -54,7 +54,6 @@ function initGallery() {
     galleryGrid.appendChild(item);
     observer.observe(img);
 
-    // Clicking a gallery item opens the Lightbox
     item.onclick = () => openLightbox(index);
   });
 }
@@ -93,19 +92,19 @@ function closeLightbox() {
   document.body.style.overflow = "auto";
 }
 
-// Click background to close
+// Click the background (the lightbox div) to close it
 lightbox.onclick = (e) => {
   if (e.target === lightbox) closeLightbox();
 };
 
-// CLICK IMAGE TO OPEN IN NEW TAB
+// Click the image inside the lightbox to open high-res in new tab
 lightboxImg.onclick = (e) => {
-  e.stopPropagation(); // Prevents background click from closing lightbox
+  e.stopPropagation(); // Stop click from bubbling up to 'lightbox' background
   const filename = imageFiles[currentIndex];
   window.open(`images/${filename}`, '_blank');
 };
 
-// Keyboard support
+// Key listeners for better UX
 document.addEventListener("keydown", (e) => {
   if (!lightbox.classList.contains("active")) return;
   if (e.key === "Escape") closeLightbox();

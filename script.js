@@ -37,6 +37,8 @@ function initGallery() {
     { rootMargin: "400px" },
   );
 
+  galleryGrid.innerHTML = ""; // Clean start for the grid
+
   imageFiles.forEach((file, index) => {
     const item = document.createElement("div");
     item.className = "gallery-item";
@@ -46,7 +48,10 @@ function initGallery() {
     img.alt = file;
 
     img.onload = () => {
-      img.classList.add("loaded");
+      // requestAnimationFrame ensures smooth entry without frame drops
+      requestAnimationFrame(() => {
+        img.classList.add("loaded");
+      });
     };
 
     item.appendChild(img);
@@ -75,21 +80,11 @@ function updateLightboxImage() {
     if (window.EXIF) {
       EXIF.getData(this, function () {
         const model = EXIF.getTag(this, "Model") || "";
-        const fStop = EXIF.getTag(this, "FNumber")
-          ? `f/${EXIF.getTag(this, "FNumber")}`
-          : "";
-        const iso = EXIF.getTag(this, "ISOSpeedRatings")
-          ? `ISO ${EXIF.getTag(this, "ISOSpeedRatings")}`
-          : "";
+        const fStop = EXIF.getTag(this, "FNumber") ? `f/${EXIF.getTag(this, "FNumber")}` : "";
+        const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `ISO ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
         const exp = EXIF.getTag(this, "ExposureTime");
-        let shutter = exp
-          ? exp >= 1
-            ? `${exp}s`
-            : `1/${Math.round(1 / exp)}s`
-          : "";
-        metadataDisplay.innerText = model
-          ? `${model} • ${fStop} • ${shutter} • ${iso}`
-          : "";
+        let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
+        metadataDisplay.innerText = model ? `${model} • ${fStop} • ${shutter} • ${iso}` : "";
       });
     }
   };
@@ -105,13 +100,8 @@ function closeLightbox() {
   document.body.style.overflow = "auto";
 }
 
-lightbox.onclick = (e) => {
-  if (e.target === lightbox) closeLightbox();
-};
-lightboxImg.onclick = (e) => {
-  e.stopPropagation();
-  navigate(1);
-};
+lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
+lightboxImg.onclick = (e) => { e.stopPropagation(); navigate(1); };
 
 document.addEventListener("keydown", (e) => {
   if (!lightbox.classList.contains("active")) return;

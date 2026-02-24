@@ -1,112 +1,49 @@
-let imageFiles = [];
-let currentIndex = 0;
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Miraxh Tereziu photography</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📷</text></svg>"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="sidebar-top">
+        <h1>Miraxh Tereziu</h1>
+        <p class="tagline">
+          Amateur photographer from Italy, just having fun trying to improve
+          every shot I take.
+        </p>
+      </div>
+      <div class="sidebar-footer">
+        <p>
+          All images are free to use without any copyright, this website does
+          not collect cookies
+        </p>
+      </div>
+    </header>
 
-const galleryGrid = document.getElementById("galleryGrid");
-const lightbox = document.getElementById("lightbox");
-const lightboxImg = document.getElementById("lightboxImg");
-const metadataDisplay = document.getElementById("metadataDisplay");
+    <main class="gallery-section">
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </main>
 
-fetch("images.json")
-  .then((res) => res.json())
-  .then((data) => {
-    imageFiles = data;
-    shuffleArray(imageFiles);
-    initGallery();
-  });
-
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-}
-
-function initGallery() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const item = entry.target;
-        const img = item.querySelector('img');
-        
-        // State A Transition: Reveal the container
-        item.classList.add('reveal');
-
-        // Load the actual image file
-        if (img.dataset.src) {
-          img.src = img.dataset.src;
-          img.removeAttribute("data-src");
-        }
-        
-        // Once observed and loading starts, we can stop observing this item
-        observer.unobserve(item);
-      }
-    });
-  }, { rootMargin: "100px" }); // Starts loading slightly before they hit the screen
-
-  imageFiles.forEach((file, index) => {
-    const item = document.createElement("div");
-    item.className = "gallery-item";
-
-    const img = document.createElement("img");
-    // Use data-src to prevent immediate "State A" loading
-    img.dataset.src = `images/thumbnails/${file}`;
-    img.alt = file;
-
-    // Fade-in effect when image is ready
-    img.onload = () => {
-      img.classList.add("loaded");
-      item.classList.add("img-done"); 
-    };
-
-    item.appendChild(img);
-    galleryGrid.appendChild(item);
-    observer.observe(item);
-
-    item.onclick = () => openLightbox(index);
-  });
-}
-
-// --- State B Logic ---
-function openLightbox(index) {
-  currentIndex = index;
-  lightbox.classList.add("active");
-  document.body.style.overflow = "hidden";
-  updateLightboxImage();
-}
-
-function updateLightboxImage() {
-  const filename = imageFiles[currentIndex];
-  lightboxImg.src = `images/${filename}`;
-  metadataDisplay.innerText = "Reading EXIF...";
-
-  lightboxImg.onload = function () {
-    if (window.EXIF) {
-      EXIF.getData(this, function () {
-        const model = EXIF.getTag(this, "Model") || "";
-        const fStop = EXIF.getTag(this, "FNumber") ? `f/${EXIF.getTag(this, "FNumber")}` : "";
-        const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `ISO ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
-        const exp = EXIF.getTag(this, "ExposureTime");
-        let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
-        metadataDisplay.innerText = model ? `${model} • ${fStop} • ${shutter} • ${iso}` : "";
-      });
-    }
-  };
-}
-
-// Background click closes State B
-lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
-
-// Image click in State B opens original file in new tab
-lightboxImg.onclick = (e) => {
-  e.stopPropagation();
-  window.open(lightboxImg.src, '_blank');
-};
-
-function closeLightbox() {
-  lightbox.classList.remove("active");
-  document.body.style.overflow = "auto";
-}
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeLightbox();
-});
+    <div class="lightbox" id="lightbox">
+      <div class="lightbox-content">
+        <img id="lightboxImg" src="" alt="Enlarged" />
+        <div id="metadataDisplay" class="metadata-bar"></div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

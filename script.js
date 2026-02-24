@@ -22,51 +22,42 @@ function shuffleArray(array) {
 }
 
 function initGallery() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const item = entry.target;
-        const img = item.querySelector('img');
-        
-        // State A Transition: Reveal the container
-        item.classList.add('reveal');
-
-        // Load the actual image file
-        if (img.dataset.src) {
-          img.src = img.dataset.src;
-          img.removeAttribute("data-src");
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          if (img.dataset.src) {
+            img.src = img.dataset.src;
+            img.removeAttribute("data-src");
+          }
         }
-        
-        // Once observed and loading starts, we can stop observing this item
-        observer.unobserve(item);
-      }
-    });
-  }, { rootMargin: "100px" }); // Starts loading slightly before they hit the screen
+      });
+    },
+    { rootMargin: "800px" }
+  );
 
   imageFiles.forEach((file, index) => {
     const item = document.createElement("div");
     item.className = "gallery-item";
 
     const img = document.createElement("img");
-    // Use data-src to prevent immediate "State A" loading
     img.dataset.src = `images/thumbnails/${file}`;
     img.alt = file;
 
-    // Fade-in effect when image is ready
     img.onload = () => {
       img.classList.add("loaded");
-      item.classList.add("img-done"); 
+      item.classList.add("loaded-container");
     };
 
     item.appendChild(img);
     galleryGrid.appendChild(item);
-    observer.observe(item);
+    observer.observe(img);
 
     item.onclick = () => openLightbox(index);
   });
 }
 
-// --- State B Logic ---
 function openLightbox(index) {
   currentIndex = index;
   lightbox.classList.add("active");
@@ -76,10 +67,13 @@ function openLightbox(index) {
 
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
+  lightboxImg.style.opacity = "0";
+  lightboxImg.classList.remove("animate-in");
+  metadataDisplay.innerText = "";
   lightboxImg.src = `images/${filename}`;
-  metadataDisplay.innerText = "Reading EXIF...";
 
   lightboxImg.onload = function () {
+    lightboxImg.classList.add("animate-in");
     if (window.EXIF) {
       EXIF.getData(this, function () {
         const model = EXIF.getTag(this, "Model") || "";
@@ -93,20 +87,25 @@ function updateLightboxImage() {
   };
 }
 
-// Background click closes State B
-lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
-
-// Image click in State B opens original file in new tab
-lightboxImg.onclick = (e) => {
-  e.stopPropagation();
-  window.open(lightboxImg.src, '_blank');
-};
-
 function closeLightbox() {
   lightbox.classList.remove("active");
   document.body.style.overflow = "auto";
 }
 
+// Click the background (the lightbox div) to close it
+lightbox.onclick = (e) => {
+  if (e.target === lightbox) closeLightbox();
+};
+
+// Click the image inside the lightbox to open high-res in new tab
+lightboxImg.onclick = (e) => {
+  e.stopPropagation(); // Stop click from bubbling up to 'lightbox' background
+  const filename = imageFiles[currentIndex];
+  window.open(`images/${filename}`, '_blank');
+};
+
+// Key listeners for better UX
 document.addEventListener("keydown", (e) => {
+  if (!lightbox.classList.contains("active")) return;
   if (e.key === "Escape") closeLightbox();
 });

@@ -22,20 +22,23 @@ function shuffleArray(array) {
 }
 
 function initGallery() {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          if (img.dataset.src) {
-            img.src = img.dataset.src;
-            img.removeAttribute("data-src");
-          }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const item = entry.target;
+        const img = item.querySelector('img');
+        
+        // Start the fade-in animation for the container
+        item.classList.add('reveal');
+
+        // Load the actual image
+        if (img.dataset.src) {
+          img.src = img.dataset.src;
+          img.removeAttribute("data-src");
         }
-      });
-    },
-    { rootMargin: "800px" }
-  );
+      }
+    });
+  }, { rootMargin: "200px" });
 
   imageFiles.forEach((file, index) => {
     const item = document.createElement("div");
@@ -47,12 +50,12 @@ function initGallery() {
 
     img.onload = () => {
       img.classList.add("loaded");
-      item.classList.add("loaded-container");
+      item.classList.add("img-done"); // Removes placeholder color
     };
 
     item.appendChild(img);
     galleryGrid.appendChild(item);
-    observer.observe(img);
+    observer.observe(item);
 
     item.onclick = () => openLightbox(index);
   });
@@ -67,13 +70,10 @@ function openLightbox(index) {
 
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
-  lightboxImg.style.opacity = "0";
-  lightboxImg.classList.remove("animate-in");
-  metadataDisplay.innerText = "";
   lightboxImg.src = `images/${filename}`;
+  metadataDisplay.innerText = "Loading Metadata...";
 
   lightboxImg.onload = function () {
-    lightboxImg.classList.add("animate-in");
     if (window.EXIF) {
       EXIF.getData(this, function () {
         const model = EXIF.getTag(this, "Model") || "";
@@ -87,25 +87,17 @@ function updateLightboxImage() {
   };
 }
 
+lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
+lightboxImg.onclick = (e) => {
+  e.stopPropagation();
+  window.open(lightboxImg.src, '_blank');
+};
+
 function closeLightbox() {
   lightbox.classList.remove("active");
   document.body.style.overflow = "auto";
 }
 
-// Click the background (the lightbox div) to close it
-lightbox.onclick = (e) => {
-  if (e.target === lightbox) closeLightbox();
-};
-
-// Click the image inside the lightbox to open high-res in new tab
-lightboxImg.onclick = (e) => {
-  e.stopPropagation(); // Stop click from bubbling up to 'lightbox' background
-  const filename = imageFiles[currentIndex];
-  window.open(`images/${filename}`, '_blank');
-};
-
-// Key listeners for better UX
 document.addEventListener("keydown", (e) => {
-  if (!lightbox.classList.contains("active")) return;
   if (e.key === "Escape") closeLightbox();
 });

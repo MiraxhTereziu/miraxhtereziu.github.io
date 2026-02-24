@@ -39,6 +39,7 @@ h1 {
   font-style: italic;
   font-size: 0.95rem;
 }
+
 .sidebar-footer p {
   font-size: 0.75rem;
   color: #bbb;
@@ -66,12 +67,8 @@ h1 {
   overflow: hidden;
   position: relative;
   background-color: #f5f5f5;
-  transition: background-color 0.3s ease;
-  /* Aspect ratio container using padding-bottom trick */
-  position: relative;
-  width: 100%;
-  height: 0;
-  padding-bottom: 75%; /* Default 4:3 aspect ratio */
+  /* Use aspect-ratio for instant layout - adjust to your photo ratio */
+  aspect-ratio: 4 / 3; /* Change to 3/2, 1/1, etc if needed */
 }
 
 .gallery-item::before {
@@ -95,6 +92,7 @@ h1 {
 .gallery-item.loaded-container::before {
   display: none;
 }
+
 .gallery-item.loaded-container {
   background-color: transparent;
 }
@@ -181,6 +179,7 @@ h1 {
 @media (max-width: 1600px) {
   .gallery-grid { column-count: 3; }
 }
+
 @media (max-width: 1100px) {
   body { flex-direction: column; }
   header {
@@ -194,6 +193,7 @@ h1 {
   .gallery-section { padding: 1rem; }
   .gallery-grid { column-count: 2; }
 }
+
 @media (max-width: 600px) {
   .gallery-grid { column-count: 1; }
 }

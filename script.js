@@ -6,44 +6,13 @@ const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightboxImg");
 const metadataDisplay = document.getElementById("metadataDisplay");
 
-// Store image dimensions for aspect ratio
-const imageDimensions = {};
-
 fetch("images.json")
   .then((res) => res.json())
   .then((data) => {
     imageFiles = data;
     shuffleArray(imageFiles);
-    // Load image dimensions first
-    loadImageDimensions().then(() => {
-      initGallery();
-    });
+    initGallery(); // Build gallery IMMEDIATELY
   });
-
-function loadImageDimensions() {
-  // Pre-load dimensions from thumbnails or create a manifest
-  // For now, we'll use a common ratio or load it dynamically
-  return Promise.all(
-    imageFiles.map((file) => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-          imageDimensions[file] = {
-            width: img.naturalWidth,
-            height: img.naturalHeight,
-          };
-          resolve();
-        };
-        img.onerror = () => {
-          // Fallback aspect ratio if image fails to load
-          imageDimensions[file] = { width: 3, height: 2 };
-          resolve();
-        };
-        img.src = `images/thumbnails/${file}`;
-      });
-    })
-  );
-}
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -71,11 +40,6 @@ function initGallery() {
   imageFiles.forEach((file, index) => {
     const item = document.createElement("div");
     item.className = "gallery-item";
-
-    // Calculate aspect ratio for this image
-    const dimensions = imageDimensions[file] || { width: 3, height: 2 };
-    const aspectRatio = (dimensions.height / dimensions.width) * 100;
-    item.style.paddingBottom = `${aspectRatio}%`;
 
     const img = document.createElement("img");
     img.dataset.src = `images/thumbnails/${file}`;
@@ -128,19 +92,16 @@ function closeLightbox() {
   document.body.style.overflow = "auto";
 }
 
-// Click the background (the lightbox div) to close it
 lightbox.onclick = (e) => {
   if (e.target === lightbox) closeLightbox();
 };
 
-// Click the image inside the lightbox to open high-res in new tab
 lightboxImg.onclick = (e) => {
   e.stopPropagation();
   const filename = imageFiles[currentIndex];
   window.open(`images/${filename}`, '_blank');
 };
 
-// Key listeners for better UX
 document.addEventListener("keydown", (e) => {
   if (!lightbox.classList.contains("active")) return;
   if (e.key === "Escape") closeLightbox();

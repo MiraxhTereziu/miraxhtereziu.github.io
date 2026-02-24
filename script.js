@@ -28,29 +28,34 @@ function initGallery() {
         const item = entry.target;
         const img = item.querySelector('img');
         
-        // Start the fade-in animation for the container
+        // State A Transition: Reveal the container
         item.classList.add('reveal');
 
-        // Load the actual image
+        // Load the actual image file
         if (img.dataset.src) {
           img.src = img.dataset.src;
           img.removeAttribute("data-src");
         }
+        
+        // Once observed and loading starts, we can stop observing this item
+        observer.unobserve(item);
       }
     });
-  }, { rootMargin: "200px" });
+  }, { rootMargin: "100px" }); // Starts loading slightly before they hit the screen
 
   imageFiles.forEach((file, index) => {
     const item = document.createElement("div");
     item.className = "gallery-item";
 
     const img = document.createElement("img");
+    // Use data-src to prevent immediate "State A" loading
     img.dataset.src = `images/thumbnails/${file}`;
     img.alt = file;
 
+    // Fade-in effect when image is ready
     img.onload = () => {
       img.classList.add("loaded");
-      item.classList.add("img-done"); // Removes placeholder color
+      item.classList.add("img-done"); 
     };
 
     item.appendChild(img);
@@ -61,6 +66,7 @@ function initGallery() {
   });
 }
 
+// --- State B Logic ---
 function openLightbox(index) {
   currentIndex = index;
   lightbox.classList.add("active");
@@ -71,7 +77,7 @@ function openLightbox(index) {
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
   lightboxImg.src = `images/${filename}`;
-  metadataDisplay.innerText = "Loading Metadata...";
+  metadataDisplay.innerText = "Reading EXIF...";
 
   lightboxImg.onload = function () {
     if (window.EXIF) {
@@ -87,7 +93,10 @@ function updateLightboxImage() {
   };
 }
 
+// Background click closes State B
 lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
+
+// Image click in State B opens original file in new tab
 lightboxImg.onclick = (e) => {
   e.stopPropagation();
   window.open(lightboxImg.src, '_blank');

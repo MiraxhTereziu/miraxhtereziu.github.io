@@ -6,15 +6,44 @@ const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightboxImg");
 const metadataDisplay = document.getElementById("metadataDisplay");
 
-// Fetch and Start
+// Store image dimensions for aspect ratio
+const imageDimensions = {};
+
 fetch("images.json")
   .then((res) => res.json())
   .then((data) => {
     imageFiles = data;
     shuffleArray(imageFiles);
-    initGallery();
-  })
-  .catch(err => console.error("Could not load images.json", err));
+    // Load image dimensions first
+    loadImageDimensions().then(() => {
+      initGallery();
+    });
+  });
+
+function loadImageDimensions() {
+  // Pre-load dimensions from thumbnails or create a manifest
+  // For now, we'll use a common ratio or load it dynamically
+  return Promise.all(
+    imageFiles.map((file) => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          imageDimensions[file] = {
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+          };
+          resolve();
+        };
+        img.onerror = () => {
+          // Fallback aspect ratio if image fails to load
+          imageDimensions[file] = { width: 3, height: 2 };
+          resolve();
+        };
+        img.src = `images/thumbnails/${file}`;
+      });
+    })
+  );
+}
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -32,17 +61,21 @@ function initGallery() {
           if (img.dataset.src) {
             img.src = img.dataset.src;
             img.removeAttribute("data-src");
-            observer.unobserve(img);
           }
         }
       });
     },
-    { rootMargin: "400px" } // Optimized margin
+    { rootMargin: "800px" }
   );
 
   imageFiles.forEach((file, index) => {
     const item = document.createElement("div");
     item.className = "gallery-item";
+
+    // Calculate aspect ratio for this image
+    const dimensions = imageDimensions[file] || { width: 3, height: 2 };
+    const aspectRatio = (dimensions.height / dimensions.width) * 100;
+    item.style.paddingBottom = `${aspectRatio}%`;
 
     const img = document.createElement("img");
     img.dataset.src = `images/thumbnails/${file}`;
@@ -72,9 +105,7 @@ function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
   lightboxImg.style.opacity = "0";
   lightboxImg.classList.remove("animate-in");
-  metadataDisplay.innerText = "Loading EXIF...";
-  
-  // Load high-res image
+  metadataDisplay.innerText = "";
   lightboxImg.src = `images/${filename}`;
 
   lightboxImg.onload = function () {
@@ -86,8 +117,7 @@ function updateLightboxImage() {
         const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `ISO ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
         const exp = EXIF.getTag(this, "ExposureTime");
         let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
-        
-        metadataDisplay.innerText = model ? `${model} • ${fStop} • ${shutter} • ${iso}` : "No metadata available";
+        metadataDisplay.innerText = model ? `${model} • ${fStop} • ${shutter} • ${iso}` : "";
       });
     }
   };
@@ -98,11 +128,20 @@ function closeLightbox() {
   document.body.style.overflow = "auto";
 }
 
-lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
+// Click the background (the lightbox div) to close it
+lightbox.onclick = (e) => {
+  if (e.target === lightbox) closeLightbox();
+};
 
+// Click the image inside the lightbox to open high-res in new tab
+lightboxImg.onclick = (e) => {
+  e.stopPropagation();
+  const filename = imageFiles[currentIndex];
+  window.open(`images/${filename}`, '_blank');
+};
+
+// Key listeners for better UX
 document.addEventListener("keydown", (e) => {
   if (!lightbox.classList.contains("active")) return;
   if (e.key === "Escape") closeLightbox();
-  if (e.key === "ArrowRight") openLightbox((currentIndex + 1) % imageFiles.length);
-  if (e.key === "ArrowLeft") openLightbox((currentIndex - 1 + imageFiles.length) % imageFiles.length);
 });

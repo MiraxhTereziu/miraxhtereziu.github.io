@@ -67,14 +67,10 @@ h1 {
   width: 100%;
 }
 
-/* Shimmer Animation */
 .gallery-item::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0; width: 100%; height: 100%;
   background: linear-gradient(90deg, #f5f5f5 0%, #eeeeee 50%, #f5f5f5 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
@@ -89,16 +85,17 @@ h1 {
 }
 
 .gallery-item img {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   display: block;
   opacity: 0;
-  transition: opacity 0.6s ease-in-out;
+  transition: opacity 0.4s ease-in-out;
   z-index: 2;
+  object-fit: cover;
 }
 
 .gallery-item img.loaded { opacity: 1; }
-.gallery-item:hover { opacity: 0.9; }
 
 /* --- LIGHTBOX --- */
 .lightbox {
@@ -129,24 +126,24 @@ h1 {
   width: 100%;
   display: flex;
   justify-content: center;
+  border-radius: 8px; /* Restored rounded corners */
+  overflow: hidden;
 }
 
 #lightboxThumb {
   width: 100%;
   max-height: 80vh;
   object-fit: contain;
-  filter: blur(15px);
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
 }
 
 #lightboxImg {
   position: absolute;
   top: 0; left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   object-fit: contain;
   opacity: 0;
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity 0.4s ease-in-out;
 }
 
 #lightboxImg.loaded { opacity: 1; }
@@ -160,13 +157,9 @@ h1 {
 }
 
 /* --- RESPONSIVE --- */
-@media (max-width: 1600px) { .gallery-grid { column-count: 3; } }
 @media (max-width: 1100px) {
   body { flex-direction: column; }
-  header {
-    width: 100%; height: auto; position: static;
-    padding: 3rem 1.5rem; text-align: center;
-  }
+  header { width: 100%; height: auto; position: static; padding: 3rem 1.5rem; text-align: center; }
   .gallery-section { padding: 1rem; }
   .gallery-grid { column-count: 2; }
 }

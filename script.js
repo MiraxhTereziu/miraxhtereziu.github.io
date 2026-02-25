@@ -8,7 +8,6 @@ const lightboxImg = document.getElementById("lightboxImg");
 const lightboxThumb = document.getElementById("lightboxThumb");
 const metadataDisplay = document.getElementById("metadataDisplay");
 
-// 1. Fetch images and load dimensions
 fetch("images.json")
   .then(res => res.json())
   .then(data => {
@@ -81,16 +80,13 @@ function openLightbox(index) {
 
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
-  
-  // Reset High-res
   lightboxImg.classList.remove("loaded");
   metadataDisplay.innerText = "Loading...";
 
-  // Set Thumbnail immediately (cached)
+  // Set Thumbnail immediately (sharp, no blur filter)
   lightboxThumb.src = `images/thumbnails/${filename}`;
   lightboxThumb.style.opacity = "1";
 
-  // Load High-res in background
   const highResLoader = new Image();
   highResLoader.src = `images/${filename}`;
 
@@ -98,7 +94,6 @@ function updateLightboxImage() {
     lightboxImg.src = highResLoader.src;
     lightboxImg.classList.add("loaded");
     
-    // EXIF Extraction
     if (window.EXIF) {
       EXIF.getData(highResLoader, function() {
         const model = EXIF.getTag(this, "Model") || "";
@@ -110,7 +105,8 @@ function updateLightboxImage() {
       });
     }
 
-    setTimeout(() => { lightboxThumb.style.opacity = "0"; }, 500);
+    // Hide thumb after high-res fade completes
+    setTimeout(() => { lightboxThumb.style.opacity = "0"; }, 400);
   };
 }
 

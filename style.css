@@ -107,7 +107,8 @@ h1 {
   z-index: 2000;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
+  /* CUSTOM CLOSE CURSOR (SVG X) */
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='18' y1='6' x2='6' y2='18'></line><line x1='6' y1='6' x2='18' y2='18'></line></svg>") 12 12, pointer;
 }
 
 .lightbox.active { display: flex; }
@@ -124,11 +125,11 @@ h1 {
 .image-wrapper {
   position: relative;
   display: flex;
-  width: fit-content; /* Critical: matches only the image area */
+  width: fit-content;
   max-width: 100%;
-  border-radius: 4px; /* Sync to 4px */
+  border-radius: 4px;
   overflow: hidden;
-  cursor: zoom-in;
+  cursor: zoom-in; /* Override close cursor with zoom for the image */
   box-shadow: 0 10px 40px rgba(0,0,0,0.08);
 }
 
@@ -161,6 +162,7 @@ h1 {
   letter-spacing: 2px;
   text-align: center;
   min-height: 1.2em;
+  cursor: default;
 }
 
 /* --- RESPONSIVE --- */

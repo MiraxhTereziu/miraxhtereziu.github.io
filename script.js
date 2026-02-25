@@ -65,7 +65,7 @@ function openLightbox(index) {
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
   
-  // FIX: Clear high-res and metadata immediately
+  // FIX: Clear high-res and metadata immediately to prevent ghosting
   lightboxImg.classList.remove("loaded");
   lightboxImg.src = ""; 
   metadataDisplay.innerText = ""; 
@@ -77,7 +77,7 @@ function updateLightboxImage() {
   highResLoader.src = `images/${filename}`;
 
   highResLoader.onload = function() {
-    // Only update if we are still on the same image (ghosting fix)
+    // Only update if we are still on the same image
     if (highResLoader.src.includes(imageFiles[currentIndex])) {
       lightboxImg.src = highResLoader.src;
       lightboxImg.classList.add("loaded");
@@ -90,7 +90,7 @@ function updateLightboxImage() {
           const exp = EXIF.getTag(this, "ExposureTime");
           let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
           
-          // Brand logic: Ensure "Lumix" is present
+          // Prepend Lumix if not already in string
           const brand = model.toLowerCase().includes("lumix") ? "" : "Lumix ";
           metadataDisplay.innerText = [brand + model, fStop, shutter, iso].filter(Boolean).join(" • ");
         });
@@ -106,12 +106,10 @@ function closeLightbox() {
   lightboxImg.src = "";
 }
 
-// Clicking the background closes the view
 lightbox.onclick = (e) => {
   closeLightbox();
 };
 
-// Clicking the image pixels opens full resolution link
 imageWrapper.onclick = (e) => {
   e.stopPropagation();
   window.open(`images/${imageFiles[currentIndex]}`, '_blank');

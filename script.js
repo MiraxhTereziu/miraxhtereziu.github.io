@@ -1,49 +1,35 @@
 let imageFiles = [];
 let currentIndex = 0;
+const imageDimensions = {};
 
 const galleryGrid = document.getElementById("galleryGrid");
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightboxImg");
+const lightboxThumb = document.getElementById("lightboxThumb");
 const metadataDisplay = document.getElementById("metadataDisplay");
 
-// Store image dimensions for aspect ratio
-const imageDimensions = {};
-
+// 1. Fetch images and load dimensions
 fetch("images.json")
-  .then((res) => res.json())
-  .then((data) => {
+  .then(res => res.json())
+  .then(data => {
     imageFiles = data;
     shuffleArray(imageFiles);
-    // Load image dimensions first
-    loadImageDimensions().then(() => {
-      initGallery();
-    });
-  });
-
-function loadImageDimensions() {
-  // Pre-load dimensions from thumbnails or create a manifest
-  // For now, we'll use a common ratio or load it dynamically
-  return Promise.all(
-    imageFiles.map((file) => {
-      return new Promise((resolve) => {
+    return Promise.all(imageFiles.map(file => {
+      return new Promise(resolve => {
         const img = new Image();
         img.onload = () => {
-          imageDimensions[file] = {
-            width: img.naturalWidth,
-            height: img.naturalHeight,
-          };
+          imageDimensions[file] = { width: img.naturalWidth, height: img.naturalHeight };
           resolve();
         };
         img.onerror = () => {
-          // Fallback aspect ratio if image fails to load
           imageDimensions[file] = { width: 3, height: 2 };
           resolve();
         };
         img.src = `images/thumbnails/${file}`;
       });
-    })
-  );
-}
+    }));
+  })
+  .then(() => initGallery());
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -53,44 +39,36 @@ function shuffleArray(array) {
 }
 
 function initGallery() {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          if (img.dataset.src) {
-            img.src = img.dataset.src;
-            img.removeAttribute("data-src");
-          }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        if (img.dataset.src) {
+          img.src = img.dataset.src;
+          img.removeAttribute("data-src");
         }
-      });
-    },
-    { rootMargin: "800px" }
-  );
+      }
+    });
+  }, { rootMargin: "800px" });
 
   imageFiles.forEach((file, index) => {
     const item = document.createElement("div");
     item.className = "gallery-item";
-
-    // Calculate aspect ratio for this image
-    const dimensions = imageDimensions[file] || { width: 3, height: 2 };
-    const aspectRatio = (dimensions.height / dimensions.width) * 100;
-    item.style.paddingBottom = `${aspectRatio}%`;
+    
+    const dims = imageDimensions[file] || { width: 3, height: 2 };
+    item.style.paddingBottom = `${(dims.height / dims.width) * 100}%`;
 
     const img = document.createElement("img");
     img.dataset.src = `images/thumbnails/${file}`;
-    img.alt = file;
-
     img.onload = () => {
       img.classList.add("loaded");
       item.classList.add("loaded-container");
     };
 
+    item.onclick = () => openLightbox(index);
     item.appendChild(img);
     galleryGrid.appendChild(item);
     observer.observe(img);
-
-    item.onclick = () => openLightbox(index);
   });
 }
 
@@ -103,23 +81,36 @@ function openLightbox(index) {
 
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
-  lightboxImg.style.opacity = "0";
-  lightboxImg.classList.remove("animate-in");
-  metadataDisplay.innerText = "";
-  lightboxImg.src = `images/${filename}`;
+  
+  // Reset High-res
+  lightboxImg.classList.remove("loaded");
+  metadataDisplay.innerText = "Loading...";
 
-  lightboxImg.onload = function () {
-    lightboxImg.classList.add("animate-in");
+  // Set Thumbnail immediately (cached)
+  lightboxThumb.src = `images/thumbnails/${filename}`;
+  lightboxThumb.style.opacity = "1";
+
+  // Load High-res in background
+  const highResLoader = new Image();
+  highResLoader.src = `images/${filename}`;
+
+  highResLoader.onload = function() {
+    lightboxImg.src = highResLoader.src;
+    lightboxImg.classList.add("loaded");
+    
+    // EXIF Extraction
     if (window.EXIF) {
-      EXIF.getData(this, function () {
+      EXIF.getData(highResLoader, function() {
         const model = EXIF.getTag(this, "Model") || "";
         const fStop = EXIF.getTag(this, "FNumber") ? `f/${EXIF.getTag(this, "FNumber")}` : "";
         const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `ISO ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
         const exp = EXIF.getTag(this, "ExposureTime");
         let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
-        metadataDisplay.innerText = model ? `${model} • ${fStop} • ${shutter} • ${iso}` : "";
+        metadataDisplay.innerText = [model, fStop, shutter, iso].filter(Boolean).join(" • ");
       });
     }
+
+    setTimeout(() => { lightboxThumb.style.opacity = "0"; }, 500);
   };
 }
 
@@ -128,20 +119,11 @@ function closeLightbox() {
   document.body.style.overflow = "auto";
 }
 
-// Click the background (the lightbox div) to close it
-lightbox.onclick = (e) => {
-  if (e.target === lightbox) closeLightbox();
-};
+lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
 
-// Click the image inside the lightbox to open high-res in new tab
-lightboxImg.onclick = (e) => {
-  e.stopPropagation();
-  const filename = imageFiles[currentIndex];
-  window.open(`images/${filename}`, '_blank');
-};
-
-// Key listeners for better UX
 document.addEventListener("keydown", (e) => {
   if (!lightbox.classList.contains("active")) return;
   if (e.key === "Escape") closeLightbox();
+  if (e.key === "ArrowRight") { currentIndex = (currentIndex + 1) % imageFiles.length; updateLightboxImage(); }
+  if (e.key === "ArrowLeft") { currentIndex = (currentIndex - 1 + imageFiles.length) % imageFiles.length; updateLightboxImage(); }
 });

@@ -3,17 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Miraxh Tereziu photography</title>
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📷</text></svg>"
-    />
+    <title>Miraxh Tereziu Photography</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📷</text></svg>"/>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
   </head>
@@ -21,16 +15,10 @@
     <header>
       <div class="sidebar-top">
         <h1>Miraxh Tereziu</h1>
-        <p class="tagline">
-          Amateur photographer from Italy, just having fun trying to improve
-          every shot I take.
-        </p>
+        <p class="tagline">Amateur photographer from Italy, just having fun trying to improve every shot I take.</p>
       </div>
       <div class="sidebar-footer">
-        <p>
-          All images are free to use without any copyright, this website does
-          not collect cookies
-        </p>
+        <p>All images are free to use without copyright.<br>This website does not collect cookies.</p>
       </div>
     </header>
 
@@ -40,7 +28,10 @@
 
     <div class="lightbox" id="lightbox">
       <div class="lightbox-content">
-        <img id="lightboxImg" src="" alt="Enlarged" />
+        <div class="image-wrapper">
+          <img id="lightboxThumb" src="" alt="">
+          <img id="lightboxImg" src="" alt="">
+        </div>
         <div id="metadataDisplay" class="metadata-bar"></div>
       </div>
     </div>

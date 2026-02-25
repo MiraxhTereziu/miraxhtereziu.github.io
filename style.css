@@ -26,9 +26,8 @@ header {
 }
 
 h1 {
-  font-family: "Work Sans", sans-serif;
   font-weight: 500;
-  font-size: 4rem;
+  font-size: 3.5rem;
   margin-bottom: 0.5rem;
   line-height: 1.05;
   letter-spacing: -1px;
@@ -39,12 +38,11 @@ h1 {
   font-style: italic;
   font-size: 0.95rem;
 }
+
 .sidebar-footer p {
   font-size: 0.75rem;
   color: #bbb;
   line-height: 1.4;
-  padding-bottom: 1.5rem;
-  padding-top: 0.5rem;
 }
 
 /* --- GALLERY SECTION --- */
@@ -64,16 +62,12 @@ h1 {
   cursor: pointer;
   border-radius: 4px;
   overflow: hidden;
-  position: relative;
   background-color: #f5f5f5;
-  transition: background-color 0.3s ease;
-  /* Aspect ratio container using padding-bottom trick */
   position: relative;
   width: 100%;
-  height: 0;
-  padding-bottom: 75%; /* Default 4:3 aspect ratio */
 }
 
+/* Shimmer Animation */
 .gallery-item::before {
   content: "";
   position: absolute;
@@ -81,23 +75,13 @@ h1 {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(245, 245, 245, 0) 0%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(245, 245, 245, 0) 100%
-  );
+  background: linear-gradient(90deg, #f5f5f5 0%, #eeeeee 50%, #f5f5f5 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   z-index: 1;
 }
 
-.gallery-item.loaded-container::before {
-  display: none;
-}
-.gallery-item.loaded-container {
-  background-color: transparent;
-}
+.gallery-item.loaded-container::before { display: none; }
 
 @keyframes shimmer {
   0% { background-position: -200% 0; }
@@ -109,30 +93,19 @@ h1 {
   height: 100%;
   display: block;
   opacity: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2;
-  object-fit: cover;
   transition: opacity 0.6s ease-in-out;
+  z-index: 2;
 }
 
-.gallery-item img.loaded {
-  opacity: 1;
-}
-
-.gallery-item:hover {
-  opacity: 0.8;
-}
+.gallery-item img.loaded { opacity: 1; }
+.gallery-item:hover { opacity: 0.9; }
 
 /* --- LIGHTBOX --- */
 .lightbox {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background: rgba(255, 255, 255, 0.98);
   z-index: 2000;
   justify-content: center;
@@ -140,34 +113,43 @@ h1 {
   cursor: pointer;
 }
 
-.lightbox.active {
-  display: flex;
-}
+.lightbox.active { display: flex; }
 
 .lightbox-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 85%;
+  width: 90%;
+  max-width: 1200px;
   cursor: default;
 }
 
-.lightbox img {
-  max-width: 100%;
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#lightboxThumb {
+  width: 100%;
   max-height: 80vh;
-  border-radius: 8px;
+  object-fit: contain;
+  filter: blur(15px);
+  transition: opacity 0.4s ease;
+}
+
+#lightboxImg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   opacity: 0;
-  cursor: zoom-in;
+  transition: opacity 0.5s ease-in-out;
 }
 
-.lightbox img.animate-in {
-  animation: imageReveal 0.5s ease-out forwards;
-}
-
-@keyframes imageReveal {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+#lightboxImg.loaded { opacity: 1; }
 
 .metadata-bar {
   margin-top: 1.5rem;
@@ -178,22 +160,14 @@ h1 {
 }
 
 /* --- RESPONSIVE --- */
-@media (max-width: 1600px) {
-  .gallery-grid { column-count: 3; }
-}
+@media (max-width: 1600px) { .gallery-grid { column-count: 3; } }
 @media (max-width: 1100px) {
   body { flex-direction: column; }
   header {
-    width: 100%;
-    height: auto;
-    position: static;
-    padding: 3rem 1.5rem;
-    text-align: center;
+    width: 100%; height: auto; position: static;
+    padding: 3rem 1.5rem; text-align: center;
   }
-  h1 { font-size: 2.5rem; }
   .gallery-section { padding: 1rem; }
   .gallery-grid { column-count: 2; }
 }
-@media (max-width: 600px) {
-  .gallery-grid { column-count: 1; }
-}
+@media (max-width: 600px) { .gallery-grid { column-count: 1; } }

@@ -9,7 +9,7 @@ const lightboxThumb = document.getElementById("lightboxThumb");
 const imageWrapper = document.getElementById("imageWrapper");
 const metadataDisplay = document.getElementById("metadataDisplay");
 
-// Initial data load
+// Load data
 fetch("images.json")
   .then(res => res.json())
   .then(data => {
@@ -20,10 +20,6 @@ fetch("images.json")
         const img = new Image();
         img.onload = () => {
           imageDimensions[file] = { width: img.naturalWidth, height: img.naturalHeight };
-          resolve();
-        };
-        img.onerror = () => {
-          imageDimensions[file] = { width: 3, height: 2 };
           resolve();
         };
         img.src = `images/thumbnails/${file}`;
@@ -40,27 +36,14 @@ function shuffleArray(array) {
 }
 
 function initGallery() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const img = entry.target;
-        if (img.dataset.src) {
-          img.src = img.dataset.src;
-          img.removeAttribute("data-src");
-        }
-      }
-    });
-  }, { rootMargin: "800px" });
-
   imageFiles.forEach((file, index) => {
     const item = document.createElement("div");
     item.className = "gallery-item";
-    
     const dims = imageDimensions[file] || { width: 3, height: 2 };
     item.style.paddingBottom = `${(dims.height / dims.width) * 100}%`;
 
     const img = document.createElement("img");
-    img.dataset.src = `images/thumbnails/${file}`;
+    img.src = `images/thumbnails/${file}`;
     img.onload = () => {
       img.classList.add("loaded");
       item.classList.add("loaded-container");
@@ -69,7 +52,6 @@ function initGallery() {
     item.onclick = () => openLightbox(index);
     item.appendChild(img);
     galleryGrid.appendChild(item);
-    observer.observe(img);
   });
 }
 
@@ -82,9 +64,13 @@ function openLightbox(index) {
 
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
+  
+  // FIX: Immediately clear the old high-res source to prevent ghosting
   lightboxImg.classList.remove("loaded");
-  metadataDisplay.innerText = "Loading full resolution image..."; // Updated loading text
+  lightboxImg.src = ""; 
+  metadataDisplay.innerText = ""; // Remove loading message
 
+  // Show thumbnail
   lightboxThumb.src = `images/thumbnails/${filename}`;
   lightboxThumb.style.opacity = "1";
 
@@ -92,47 +78,46 @@ function updateLightboxImage() {
   highResLoader.src = `images/${filename}`;
 
   highResLoader.onload = function() {
-    lightboxImg.src = highResLoader.src;
-    lightboxImg.classList.add("loaded");
-    
-    if (window.EXIF) {
-      EXIF.getData(highResLoader, function() {
-        const model = EXIF.getTag(this, "Model") || "";
-        const fStop = EXIF.getTag(this, "FNumber") ? `f/${EXIF.getTag(this, "FNumber")}` : "";
-        const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `ISO ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
-        const exp = EXIF.getTag(this, "ExposureTime");
-        let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
-        metadataDisplay.innerText = [model, fStop, shutter, iso].filter(Boolean).join(" • ");
-      });
+    // Only update if the user hasn't switched images while this was loading
+    if (highResLoader.src.includes(imageFiles[currentIndex])) {
+      lightboxImg.src = highResLoader.src;
+      lightboxImg.classList.add("loaded");
+      
+      if (window.EXIF) {
+        EXIF.getData(highResLoader, function() {
+          const model = EXIF.getTag(this, "Model") || "";
+          const fStop = EXIF.getTag(this, "FNumber") ? `f/${EXIF.getTag(this, "FNumber")}` : "";
+          const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `ISO ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
+          const exp = EXIF.getTag(this, "ExposureTime");
+          let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
+          
+          // Added "Lumix" to the brand display
+          const brand = model.toLowerCase().includes("lumix") ? "" : "Lumix ";
+          metadataDisplay.innerText = [brand + model, fStop, shutter, iso].filter(Boolean).join(" • ");
+        });
+      }
+      setTimeout(() => { lightboxThumb.style.opacity = "0"; }, 400);
     }
-    setTimeout(() => { lightboxThumb.style.opacity = "0"; }, 400);
   };
 }
 
 function closeLightbox() {
   lightbox.classList.remove("active");
   document.body.style.overflow = "auto";
+  lightboxImg.src = ""; // Clear src on close
 }
 
-// CLICK LOGIC:
-// 1. Click anywhere on the background/overlay to close
+// Logic for clicking outside the image
 lightbox.onclick = (e) => {
   closeLightbox();
 };
 
-// 2. Click on the image wrapper to open full view (prevents closing)
+// Logic for clicking the actual image
 imageWrapper.onclick = (e) => {
-  e.stopPropagation(); // Stop the 'closeLightbox' click from firing
-  const filename = imageFiles[currentIndex];
-  window.open(`images/${filename}`, '_blank');
-};
-
-// 3. Click on metadata doesn't close or open anything
-metadataDisplay.onclick = (e) => {
   e.stopPropagation();
+  window.open(`images/${imageFiles[currentIndex]}`, '_blank');
 };
 
-// Key listeners
 document.addEventListener("keydown", (e) => {
   if (!lightbox.classList.contains("active")) return;
   if (e.key === "Escape") closeLightbox();

@@ -1,101 +1,14 @@
-/* --- RESET & BASE --- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: "Work Sans", sans-serif;
-  background-color: #fff;
-  display: flex;
-  min-height: 100vh;
-}
-
-/* --- SIDEBAR --- */
-header {
-  width: 320px;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  padding: 4rem 2rem;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-h1 {
-  font-weight: 500;
-  font-size: 3.5rem;
-  margin-bottom: 0.5rem;
-  line-height: 1.05;
-  letter-spacing: -1px;
-}
-
-.tagline {
-  color: #666;
-  font-style: italic;
-  font-size: 0.95rem;
-}
-
-.sidebar-footer p {
-  font-size: 0.75rem;
-  color: #bbb;
-  line-height: 1.4;
-}
-
 /* --- GALLERY SECTION --- */
-.gallery-section {
-  flex-grow: 1;
-  padding: 4rem 2rem 4rem 0;
-}
-
-.gallery-grid {
-  column-count: 3; /* Limit to 3 columns as requested */
-  column-gap: 0.5em;
-}
-
 .gallery-item {
   margin-bottom: 0.5em;
   break-inside: avoid;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 4px; /* Set to 4px */
   overflow: hidden;
   background-color: #f5f5f5;
   position: relative;
   width: 100%;
 }
-
-.gallery-item::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(90deg, #f5f5f5 0%, #eeeeee 50%, #f5f5f5 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  z-index: 1;
-}
-
-.gallery-item.loaded-container::before { display: none; }
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.gallery-item img {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  display: block;
-  opacity: 0;
-  transition: opacity 0.4s ease-in-out;
-  z-index: 2;
-  object-fit: cover;
-}
-
-.gallery-item img.loaded { opacity: 1; }
 
 /* --- LIGHTBOX --- */
 .lightbox {
@@ -107,36 +20,32 @@ h1 {
   z-index: 2000;
   justify-content: center;
   align-items: center;
-  cursor: pointer; /* Pointer for the close-able background */
+  cursor: pointer;
 }
 
 .lightbox.active { display: flex; }
 
-.lightbox-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 90%;
-  max-width: 1200px;
-  cursor: default; /* Metadata area doesn't close on click */
-}
-
 .image-wrapper {
   position: relative;
-  width: fit-content; /* Ensure click area matches image dimensions */
+  /* Use max-content and flex constraints to keep hitbox tight to the image */
   display: flex;
-  justify-content: center;
-  border-radius: 16px; /* Visible rounded corners */
+  max-width: 90%;
+  max-height: 80vh;
+  border-radius: 4px; /* Set to 4px */
   overflow: hidden;
   cursor: zoom-in;
   box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  background-color: #fff;
+}
+
+#lightboxThumb, #lightboxImg {
+  max-width: 100%;
+  max-height: 80vh;
+  display: block;
+  object-fit: contain; /* Ensures the image doesn't bleed out of the box */
 }
 
 #lightboxThumb {
-  display: block;
-  max-width: 100%;
-  max-height: 80vh;
-  object-fit: contain;
   transition: opacity 0.3s ease;
 }
 
@@ -144,7 +53,6 @@ h1 {
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  object-fit: contain;
   opacity: 0;
   transition: opacity 0.4s ease-in-out;
 }
@@ -158,13 +66,5 @@ h1 {
   font-size: 0.75rem;
   letter-spacing: 2px;
   text-align: center;
+  min-height: 1.2em; /* Prevents layout jump when text appears */
 }
-
-/* --- RESPONSIVE --- */
-@media (max-width: 1100px) {
-  body { flex-direction: column; }
-  header { width: 100%; height: auto; position: static; padding: 3rem 1.5rem; text-align: center; }
-  .gallery-section { padding: 1rem; }
-  .gallery-grid { column-count: 2; }
-}
-@media (max-width: 600px) { .gallery-grid { column-count: 1; } }

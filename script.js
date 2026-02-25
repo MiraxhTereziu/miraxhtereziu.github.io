@@ -8,6 +8,7 @@ const lightboxImg = document.getElementById("lightboxImg");
 const lightboxThumb = document.getElementById("lightboxThumb");
 const metadataDisplay = document.getElementById("metadataDisplay");
 
+// Fetch and load
 fetch("images.json")
   .then(res => res.json())
   .then(data => {
@@ -81,9 +82,8 @@ function openLightbox(index) {
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
   lightboxImg.classList.remove("loaded");
-  metadataDisplay.innerText = "Loading...";
+  metadataDisplay.innerText = "Loading full resolution image..."; // Fixed text
 
-  // Set Thumbnail immediately (sharp, no blur filter)
   lightboxThumb.src = `images/thumbnails/${filename}`;
   lightboxThumb.style.opacity = "1";
 
@@ -105,7 +105,6 @@ function updateLightboxImage() {
       });
     }
 
-    // Hide thumb after high-res fade completes
     setTimeout(() => { lightboxThumb.style.opacity = "0"; }, 400);
   };
 }
@@ -115,7 +114,19 @@ function closeLightbox() {
   document.body.style.overflow = "auto";
 }
 
-lightbox.onclick = (e) => { if (e.target === lightbox) closeLightbox(); };
+// Fixed: Click anywhere outside the image container (the overlay background) closes it
+lightbox.onclick = (e) => {
+  if (e.target === lightbox) {
+    closeLightbox();
+  }
+};
+
+// Fixed: Clicking the image wrapper opens the high-res file in a new tab
+document.querySelector('.image-wrapper').onclick = (e) => {
+  e.stopPropagation(); // Prevents the lightbox.onclick from triggering
+  const filename = imageFiles[currentIndex];
+  window.open(`images/${filename}`, '_blank');
+};
 
 document.addEventListener("keydown", (e) => {
   if (!lightbox.classList.contains("active")) return;

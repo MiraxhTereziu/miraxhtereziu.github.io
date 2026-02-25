@@ -9,7 +9,6 @@ const lightboxThumb = document.getElementById("lightboxThumb");
 const imageWrapper = document.getElementById("imageWrapper");
 const metadataDisplay = document.getElementById("metadataDisplay");
 
-// Load data
 fetch("images.json")
   .then(res => res.json())
   .then(data => {
@@ -65,7 +64,6 @@ function openLightbox(index) {
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
   
-  // FIX: Clear high-res and metadata immediately to prevent ghosting
   lightboxImg.classList.remove("loaded");
   lightboxImg.src = ""; 
   metadataDisplay.innerText = ""; 
@@ -77,7 +75,6 @@ function updateLightboxImage() {
   highResLoader.src = `images/${filename}`;
 
   highResLoader.onload = function() {
-    // Only update if we are still on the same image
     if (highResLoader.src.includes(imageFiles[currentIndex])) {
       lightboxImg.src = highResLoader.src;
       lightboxImg.classList.add("loaded");
@@ -90,7 +87,6 @@ function updateLightboxImage() {
           const exp = EXIF.getTag(this, "ExposureTime");
           let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
           
-          // Prepend Lumix if not already in string
           const brand = model.toLowerCase().includes("lumix") ? "" : "Lumix ";
           metadataDisplay.innerText = [brand + model, fStop, shutter, iso].filter(Boolean).join(" • ");
         });
@@ -113,6 +109,10 @@ lightbox.onclick = (e) => {
 imageWrapper.onclick = (e) => {
   e.stopPropagation();
   window.open(`images/${imageFiles[currentIndex]}`, '_blank');
+};
+
+metadataDisplay.onclick = (e) => {
+  e.stopPropagation();
 };
 
 document.addEventListener("keydown", (e) => {

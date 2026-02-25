@@ -65,12 +65,11 @@ function openLightbox(index) {
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
   
-  // FIX: Immediately clear the old high-res source to prevent ghosting
+  // FIX: Clear high-res and metadata immediately
   lightboxImg.classList.remove("loaded");
   lightboxImg.src = ""; 
-  metadataDisplay.innerText = ""; // Remove loading message
+  metadataDisplay.innerText = ""; 
 
-  // Show thumbnail
   lightboxThumb.src = `images/thumbnails/${filename}`;
   lightboxThumb.style.opacity = "1";
 
@@ -78,7 +77,7 @@ function updateLightboxImage() {
   highResLoader.src = `images/${filename}`;
 
   highResLoader.onload = function() {
-    // Only update if the user hasn't switched images while this was loading
+    // Only update if we are still on the same image (ghosting fix)
     if (highResLoader.src.includes(imageFiles[currentIndex])) {
       lightboxImg.src = highResLoader.src;
       lightboxImg.classList.add("loaded");
@@ -91,7 +90,7 @@ function updateLightboxImage() {
           const exp = EXIF.getTag(this, "ExposureTime");
           let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
           
-          // Added "Lumix" to the brand display
+          // Brand logic: Ensure "Lumix" is present
           const brand = model.toLowerCase().includes("lumix") ? "" : "Lumix ";
           metadataDisplay.innerText = [brand + model, fStop, shutter, iso].filter(Boolean).join(" • ");
         });
@@ -104,15 +103,15 @@ function updateLightboxImage() {
 function closeLightbox() {
   lightbox.classList.remove("active");
   document.body.style.overflow = "auto";
-  lightboxImg.src = ""; // Clear src on close
+  lightboxImg.src = "";
 }
 
-// Logic for clicking outside the image
+// Clicking the background closes the view
 lightbox.onclick = (e) => {
   closeLightbox();
 };
 
-// Logic for clicking the actual image
+// Clicking the image pixels opens full resolution link
 imageWrapper.onclick = (e) => {
   e.stopPropagation();
   window.open(`images/${imageFiles[currentIndex]}`, '_blank');

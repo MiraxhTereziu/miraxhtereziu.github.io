@@ -6,9 +6,10 @@ const galleryGrid = document.getElementById("galleryGrid");
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightboxImg");
 const lightboxThumb = document.getElementById("lightboxThumb");
+const imageWrapper = document.getElementById("imageWrapper");
 const metadataDisplay = document.getElementById("metadataDisplay");
 
-// Fetch and load
+// Initial data load
 fetch("images.json")
   .then(res => res.json())
   .then(data => {
@@ -82,7 +83,7 @@ function openLightbox(index) {
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
   lightboxImg.classList.remove("loaded");
-  metadataDisplay.innerText = "Loading full resolution image..."; // Fixed text
+  metadataDisplay.innerText = "Loading full resolution image..."; // Updated loading text
 
   lightboxThumb.src = `images/thumbnails/${filename}`;
   lightboxThumb.style.opacity = "1";
@@ -104,7 +105,6 @@ function updateLightboxImage() {
         metadataDisplay.innerText = [model, fStop, shutter, iso].filter(Boolean).join(" • ");
       });
     }
-
     setTimeout(() => { lightboxThumb.style.opacity = "0"; }, 400);
   };
 }
@@ -114,20 +114,25 @@ function closeLightbox() {
   document.body.style.overflow = "auto";
 }
 
-// Fixed: Click anywhere outside the image container (the overlay background) closes it
+// CLICK LOGIC:
+// 1. Click anywhere on the background/overlay to close
 lightbox.onclick = (e) => {
-  if (e.target === lightbox) {
-    closeLightbox();
-  }
+  closeLightbox();
 };
 
-// Fixed: Clicking the image wrapper opens the high-res file in a new tab
-document.querySelector('.image-wrapper').onclick = (e) => {
-  e.stopPropagation(); // Prevents the lightbox.onclick from triggering
+// 2. Click on the image wrapper to open full view (prevents closing)
+imageWrapper.onclick = (e) => {
+  e.stopPropagation(); // Stop the 'closeLightbox' click from firing
   const filename = imageFiles[currentIndex];
   window.open(`images/${filename}`, '_blank');
 };
 
+// 3. Click on metadata doesn't close or open anything
+metadataDisplay.onclick = (e) => {
+  e.stopPropagation();
+};
+
+// Key listeners
 document.addEventListener("keydown", (e) => {
   if (!lightbox.classList.contains("active")) return;
   if (e.key === "Escape") closeLightbox();

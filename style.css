@@ -52,7 +52,7 @@ h1 {
 }
 
 .gallery-grid {
-  column-count: 3; /* Fixed: Maximum 3 columns */
+  column-count: 3; /* Limit to 3 columns as requested */
   column-gap: 0.5em;
 }
 
@@ -107,7 +107,7 @@ h1 {
   z-index: 2000;
   justify-content: center;
   align-items: center;
-  cursor: pointer; /* Feedback that background is clickable */
+  cursor: pointer; /* Pointer for the close-able background */
 }
 
 .lightbox.active { display: flex; }
@@ -118,21 +118,23 @@ h1 {
   align-items: center;
   width: 90%;
   max-width: 1200px;
-  cursor: default; /* Metadata area is not clickable for closing */
+  cursor: default; /* Metadata area doesn't close on click */
 }
 
 .image-wrapper {
   position: relative;
-  width: 100%;
+  width: fit-content; /* Ensure click area matches image dimensions */
   display: flex;
   justify-content: center;
-  border-radius: 12px; /* Fixed: Added border radius to corners */
+  border-radius: 16px; /* Visible rounded corners */
   overflow: hidden;
-  cursor: zoom-in; /* Feedback that image can be opened in new tab */
+  cursor: zoom-in;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
 }
 
 #lightboxThumb {
-  width: 100%;
+  display: block;
+  max-width: 100%;
   max-height: 80vh;
   object-fit: contain;
   transition: opacity 0.3s ease;

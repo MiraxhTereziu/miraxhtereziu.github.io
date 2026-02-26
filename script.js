@@ -9,6 +9,7 @@ const lightboxThumb = document.getElementById("lightboxThumb");
 const imageWrapper = document.getElementById("imageWrapper");
 const metadataDisplay = document.getElementById("metadataDisplay");
 
+// Load data
 fetch("images.json")
   .then(res => res.json())
   .then(data => {
@@ -64,6 +65,7 @@ function openLightbox(index) {
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
   
+  // Clear old state
   lightboxImg.classList.remove("loaded");
   lightboxImg.src = ""; 
   metadataDisplay.innerText = ""; 
@@ -75,6 +77,7 @@ function updateLightboxImage() {
   highResLoader.src = `images/${filename}`;
 
   highResLoader.onload = function() {
+    // Sync check
     if (highResLoader.src.includes(imageFiles[currentIndex])) {
       lightboxImg.src = highResLoader.src;
       lightboxImg.classList.add("loaded");

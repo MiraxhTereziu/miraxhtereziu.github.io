@@ -64,6 +64,9 @@ function openLightbox(index) {
 function updateLightboxImage() {
   const filename = imageFiles[currentIndex];
   
+  const dims = imageDimensions[filename] || { width: 3, height: 2 };
+  imageWrapper.style.setProperty('--aspect-ratio', dims.width / dims.height);
+
   lightboxImg.classList.remove("loaded");
   lightboxImg.src = ""; 
   metadataDisplay.innerText = ""; 
@@ -81,15 +84,28 @@ function updateLightboxImage() {
       
       if (window.EXIF) {
         EXIF.getData(highResLoader, function() {
-          const model = EXIF.getTag(this, "Model") || "";
-          const fStop = EXIF.getTag(this, "FNumber") ? `f/${EXIF.getTag(this, "FNumber")}` : "";
-          const iso = EXIF.getTag(this, "ISOSpeedRatings") ? `ISO ${EXIF.getTag(this, "ISOSpeedRatings")}` : "";
+          const model = EXIF.getTag(this, "Model");
+          const fStop = EXIF.getTag(this, "FNumber");
+          const iso = EXIF.getTag(this, "ISOSpeedRatings");
           const exp = EXIF.getTag(this, "ExposureTime");
-          let shutter = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
+
+          if (!model && !fStop && !iso && !exp) {
+            metadataDisplay.innerText = "No metadata found";
+            return;
+          }
+
+          const fStopStr = fStop ? `f/${fStop}` : "";
+          const isoStr = iso ? `ISO ${iso}` : "";
+          const shutterStr = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
           
-          const brand = model.toLowerCase().includes("lumix") ? "" : "Lumix ";
-          metadataDisplay.innerText = [brand + model, fStop, shutter, iso].filter(Boolean).join(" • ");
+          const modelStr = model || "";
+          const brand = modelStr.toLowerCase().includes("lumix") ? "" : "Lumix ";
+          const finalModelStr = brand + modelStr;
+
+          metadataDisplay.innerText = [finalModelStr, fStopStr, shutterStr, isoStr].filter(Boolean).join(" • ");
         });
+      } else {
+        metadataDisplay.innerText = "No metadata found";
       }
       setTimeout(() => { lightboxThumb.style.opacity = "0"; }, 400);
     }

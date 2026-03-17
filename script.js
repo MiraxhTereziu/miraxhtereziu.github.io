@@ -45,7 +45,6 @@ function initGallery() {
     img.src = `images/thumbnails/${file}`;
     img.onload = () => {
       img.classList.add("loaded");
-      item.classList.add("loaded-container");
     };
 
     item.onclick = () => openLightbox(index);
@@ -80,7 +79,14 @@ function updateLightboxImage() {
   highResLoader.onload = function() {
     if (highResLoader.src.includes(imageFiles[currentIndex])) {
       lightboxImg.src = highResLoader.src;
-      lightboxImg.classList.add("loaded");
+      
+      // Request an animation frame to let the browser paint the new `src` at opacity 0,
+      // and then apply the `loaded` class in the next frame so it transitions to opacity 1.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          lightboxImg.classList.add("loaded");
+        });
+      });
       
       if (window.EXIF) {
         EXIF.getData(highResLoader, function() {
@@ -107,7 +113,11 @@ function updateLightboxImage() {
       } else {
         metadataDisplay.innerText = "No metadata found";
       }
-      setTimeout(() => { lightboxThumb.style.opacity = "0"; }, 400);
+      // Wait for the .4s opacity transition defined in CSS to finish
+      // before completely hiding the thumbnail so a clean cross-fade happens.
+      setTimeout(() => { 
+        lightboxThumb.style.opacity = "0"; 
+      }, 450);
     }
   };
 }

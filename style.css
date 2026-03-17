@@ -26,11 +26,19 @@ header {
 }
 
 h1 {
-  font-weight: 500;
+  font-family: "PT Serif", serif;
+  font-weight: 700;
   font-size: 3.5rem;
   margin-bottom: 0.5rem;
   line-height: 1.05;
   letter-spacing: -1px;
+}
+
+.sidebar-logo {
+  max-width: 50px;
+  height: auto;
+  margin-bottom: 1rem;
+  display: block;
 }
 
 .tagline {
@@ -67,32 +75,6 @@ h1 {
   width: 100%;
 }
 
-.gallery-item::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, #f5f5f5 0%, #eeeeee 50%, #f5f5f5 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  z-index: 1;
-}
-
-.gallery-item.loaded-container::before {
-  display: none;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
-  }
-}
 
 .gallery-item img {
   position: absolute;
@@ -202,8 +184,13 @@ h1 {
     width: 100%;
     height: auto;
     position: static;
-    padding: 3rem 1.5rem;
-    text-align: center;
+    padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+    text-align: left;
+  }
+
+  h1 {
+    white-space: nowrap;
+    font-size: clamp(2rem, 8vw, 3.5rem);
   }
 
   .gallery-section {
@@ -216,6 +203,10 @@ h1 {
 }
 
 @media (max-width: 600px) {
+  header {
+    padding: 2rem 1.25rem 1rem 1.25rem;
+  }
+  
   .gallery-grid {
     column-count: 1;
   }

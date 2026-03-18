@@ -42,15 +42,54 @@ function initGallery() {
     item.style.paddingBottom = `${(dims.height / dims.width) * 100}%`;
 
     const img = document.createElement("img");
+    img.crossOrigin = "Anonymous";
     img.src = `images/thumbnails/${file}`;
     img.onload = () => {
       img.classList.add("loaded");
+      item.style.setProperty('--hover-color', getAverageRGB(img));
     };
 
     item.onclick = () => openLightbox(index);
     item.appendChild(img);
     galleryGrid.appendChild(item);
   });
+}
+
+function getAverageRGB(imgEl) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width = imgEl.naturalWidth || 100;
+  const height = canvas.height = imgEl.naturalHeight || 100;
+
+  ctx.drawImage(imgEl, 0, 0);
+
+  let data;
+  try {
+      data = ctx.getImageData(0, 0, width, height).data;
+  } catch(e) {
+      return 'rgb(150, 150, 150)';
+  }
+  
+  let r = 0, g = 0, b = 0, count = 0;
+  for (let i = 0, l = data.length; i < l; i += 160) {
+      r += data[i];
+      g += data[i+1];
+      b += data[i+2];
+      count++;
+  }
+
+  if (count > 0) {
+      r = Math.floor(r / count);
+      g = Math.floor(g / count);
+      b = Math.floor(b / count);
+      // Blend toward white to create a pastel version
+      const pastelStrength = 0.55;
+      r = Math.round(r + (255 - r) * pastelStrength);
+      g = Math.round(g + (255 - g) * pastelStrength);
+      b = Math.round(b + (255 - b) * pastelStrength);
+      return `rgb(${r}, ${g}, ${b})`;
+  }
+  return 'rgb(150, 150, 150)';
 }
 
 function openLightbox(index) {

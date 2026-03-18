@@ -65,29 +65,29 @@ function getAverageRGB(imgEl) {
 
   let data;
   try {
-      data = ctx.getImageData(0, 0, width, height).data;
+    data = ctx.getImageData(0, 0, width, height).data;
   } catch(e) {
-      return 'rgb(150, 150, 150)';
+    return 'rgb(150, 150, 150)';
   }
-  
+
   let r = 0, g = 0, b = 0, count = 0;
   for (let i = 0, l = data.length; i < l; i += 160) {
-      r += data[i];
-      g += data[i+1];
-      b += data[i+2];
-      count++;
+    r += data[i];
+    g += data[i + 1];
+    b += data[i + 2];
+    count++;
   }
 
   if (count > 0) {
-      r = Math.floor(r / count);
-      g = Math.floor(g / count);
-      b = Math.floor(b / count);
-      // Blend toward white to create a pastel version
-      const pastelStrength = 0.55;
-      r = Math.round(r + (255 - r) * pastelStrength);
-      g = Math.round(g + (255 - g) * pastelStrength);
-      b = Math.round(b + (255 - b) * pastelStrength);
-      return `rgb(${r}, ${g}, ${b})`;
+    r = Math.floor(r / count);
+    g = Math.floor(g / count);
+    b = Math.floor(b / count);
+    // Blend toward white to create a pastel version
+    const pastelStrength = 0.55;
+    r = Math.round(r + (255 - r) * pastelStrength);
+    g = Math.round(g + (255 - g) * pastelStrength);
+    b = Math.round(b + (255 - b) * pastelStrength);
+    return `rgb(${r}, ${g}, ${b})`;
   }
   return 'rgb(150, 150, 150)';
 }

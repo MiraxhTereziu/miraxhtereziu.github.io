@@ -147,3 +147,16 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") { currentIndex = (currentIndex + 1) % imageFiles.length; updateLightboxImage(); }
   if (e.key === "ArrowLeft") { currentIndex = (currentIndex - 1 + imageFiles.length) % imageFiles.length; updateLightboxImage(); }
 });
+
+// Initialize Smooth Scrolling (Lenis)
+const lenis = new Lenis({
+  lerp: 0.1, // Adjust the smoothness (lower = smoother)
+  smoothWheel: true,
+});
+
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+
+requestAnimationFrame(raf);

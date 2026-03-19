@@ -46,7 +46,7 @@ function initGallery() {
     img.src = `images/thumbnails/${file}`;
     img.onload = () => {
       img.classList.add("loaded");
-      item.style.setProperty('--hover-color', getAverageRGB(img));
+      item.style.setProperty('--hover-color', getDominantColor(img));
     };
 
     item.onclick = () => openLightbox(index);
@@ -127,9 +127,6 @@ function getDominantColor(imgEl) {
   return `rgb(${br}, ${bg}, ${bb})`;
 }
 
-// Keep the old name as an alias so the call-site doesn't need to change
-const getAverageRGB = getDominantColor;
-
 function openLightbox(index) {
   currentIndex = index;
   lightbox.classList.add("active");
@@ -205,7 +202,7 @@ function closeLightbox() {
   lightboxImg.src = "";
 }
 
-lightbox.onclick = (e) => {
+lightbox.onclick = () => {
   closeLightbox();
 };
 

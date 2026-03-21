@@ -144,8 +144,9 @@ function updateLightboxImage() {
   lightboxImg.src = "";
   metadataDisplay.innerText = "";
 
-  lightboxThumb.src = `images/thumbnails/${filename}`;
+  lightboxThumb.src = "";
   lightboxThumb.style.opacity = "1";
+  lightboxThumb.src = `images/thumbnails/${filename}`;
 
   const highResLoader = new Image();
   highResLoader.src = `images/${filename}`;

@@ -127,8 +127,35 @@ function getDominantColor(imgEl) {
   return `rgb(${br}, ${bg}, ${bb})`;
 }
 
+function setLightboxCursor(color) {
+  const c = color || 'rgb(40,40,40)';
+
+  // Close cursor (X in circle) — applied to the lightbox backdrop
+  const closeSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 40 40' overflow='hidden'>
+    <circle cx='20' cy='20' r='20' fill='${c}'/>
+    <line x1='13' y1='13' x2='27' y2='27' stroke='white' stroke-width='2.5' stroke-linecap='round'/>
+    <line x1='27' y1='13' x2='13' y2='27' stroke='white' stroke-width='2.5' stroke-linecap='round'/>
+  </svg>`;
+  lightbox.style.cursor = `url("data:image/svg+xml;utf8,${encodeURIComponent(closeSvg)}") 16 16, pointer`;
+
+  // Fullscreen cursor (expand arrows in circle) — applied to the image wrapper
+  const zoomSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 40 40' overflow='hidden'>
+    <circle cx='20' cy='20' r='20' fill='${c}'/>
+    <polyline points='12,16 12,12 16,12' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/>
+    <polyline points='24,12 28,12 28,16' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/>
+    <polyline points='28,24 28,28 24,28' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/>
+    <polyline points='16,28 12,28 12,24' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/>
+  </svg>`;
+  imageWrapper.style.cursor = `url("data:image/svg+xml;utf8,${encodeURIComponent(zoomSvg)}") 16 16, zoom-in`;
+}
+
 function openLightbox(index) {
   currentIndex = index;
+  const items = document.querySelectorAll('.gallery-item');
+  const color = items[index]
+    ? getComputedStyle(items[index]).getPropertyValue('--hover-color').trim()
+    : '';
+  setLightboxCursor(color);
   lightbox.classList.add("active");
   document.body.style.overflow = "hidden";
   updateLightboxImage();
@@ -219,8 +246,16 @@ metadataDisplay.onclick = (e) => {
 document.addEventListener("keydown", (e) => {
   if (!lightbox.classList.contains("active")) return;
   if (e.key === "Escape") closeLightbox();
-  if (e.key === "ArrowRight") { currentIndex = (currentIndex + 1) % imageFiles.length; updateLightboxImage(); }
-  if (e.key === "ArrowLeft") { currentIndex = (currentIndex - 1 + imageFiles.length) % imageFiles.length; updateLightboxImage(); }
+  if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+    if (e.key === "ArrowRight") currentIndex = (currentIndex + 1) % imageFiles.length;
+    else currentIndex = (currentIndex - 1 + imageFiles.length) % imageFiles.length;
+    const items = document.querySelectorAll('.gallery-item');
+    const color = items[currentIndex]
+      ? getComputedStyle(items[currentIndex]).getPropertyValue('--hover-color').trim()
+      : '';
+    setLightboxCursor(color);
+    updateLightboxImage();
+  }
 });
 
 // Initialize Smooth Scrolling (Lenis)

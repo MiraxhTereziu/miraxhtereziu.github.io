@@ -7,7 +7,74 @@ const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightboxImg");
 const lightboxThumb = document.getElementById("lightboxThumb");
 const imageWrapper = document.getElementById("imageWrapper");
-const metadataDisplay = document.getElementById("metadataDisplay");
+const metadataDisplay = document.getElementById("metadataDisplay"); // legacy fallback
+const infoPopup = document.getElementById("infoPopup");
+const infoBtn = document.getElementById("infoBtn");
+const downloadBtn = document.getElementById("downloadBtn");
+
+const iconClickPaths = `<path d="M216,116v36a80,80,0,0,1-80,80c-44.18,0-55.81-24-93.32-90a20,20,0,0,1,34.64-20L96,152V44a20,20,0,0,1,40,0v56a20,20,0,0,1,40,0v16a20,20,0,0,1,40,0Z" opacity="0.2"/><path d="M196,88a27.86,27.86,0,0,0-13.35,3.39A28,28,0,0,0,144,74.7V44a28,28,0,0,0-56,0v80l-3.82-6.13A28,28,0,0,0,35.73,146l4.67,8.23C74.81,214.89,89.05,240,136,240a88.1,88.1,0,0,0,88-88V116A28,28,0,0,0,196,88Zm12,64a72.08,72.08,0,0,1-72,72c-37.63,0-47.84-18-81.68-77.68l-4.69-8.27,0-.05A12,12,0,0,1,54,121.61a11.88,11.88,0,0,1,6-1.6,12,12,0,0,1,10.41,6,1.76,1.76,0,0,0,.14.23l18.67,30A8,8,0,0,0,104,152V44a12,12,0,0,1,24,0v68a8,8,0,0,0,16,0V100a12,12,0,0,1,24,0v20a8,8,0,0,0,16,0v-4a12,12,0,0,1,24,0Z"/>`;
+const iconClosePaths = `<path d="M216,56V200a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V56A16,16,0,0,1,56,40H200A16,16,0,0,1,216,56Z" opacity="0.2"/><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>`;
+const iconZoomPaths = `<path d="M208,48V208H48V48Z" opacity="0.2"/><path d="M216,48V96a8,8,0,0,1-16,0V67.31l-42.34,42.35a8,8,0,0,1-11.32-11.32L188.69,56H160a8,8,0,0,1,0-16h48A8,8,0,0,1,216,48ZM98.34,146.34,56,188.69V160a8,8,0,0,0-16,0v48a8,8,0,0,0,8,8H96a8,8,0,0,0,0-16H67.31l42.35-42.34a8,8,0,0,0-11.32-11.32ZM208,152a8,8,0,0,0-8,8v28.69l-42.34-42.35a8,8,0,0,0-11.32,11.32L188.69,200H160a8,8,0,0,0,0,16h48a8,8,0,0,0,8-8V160A8,8,0,0,0,208,152ZM67.31,56H96a8,8,0,0,0,0-16H48a8,8,0,0,0-8,8V96a8,8,0,0,0,16,0V67.31l42.34,42.35a8,8,0,0,0,11.32-11.32Z"/>`;
+const iconEnvelopePaths = `<path d="M224,56l-96,88L32,56Z" opacity="0.2"/><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48Zm-96,85.15L52.57,64H203.43ZM98.71,128,40,181.81V74.19Zm11.84,10.85,12,11.05a8,8,0,0,0,10.82,0l12-11.05,58,53.15H52.57ZM157.29,128,216,74.18V181.82Z"/>`;
+const iconCopyPaths = `<path d="M216,40V168H168V88H88V40Z" opacity="0.2"/><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/>`;
+
+const getSvg = (id, paths) => `<svg id="${id}" class="cursor-icon" xmlns='http://www.w3.org/2000/svg' viewBox="0 0 256 256">${paths}</svg>`;
+
+const customCursor = document.createElement('div');
+customCursor.id = 'custom-cursor';
+customCursor.innerHTML = `<div class="cursor-circle">${getSvg('icon-click', iconClickPaths)}${getSvg('icon-close', iconClosePaths)}${getSvg('icon-zoom', iconZoomPaths)}${getSvg('icon-envelope', iconEnvelopePaths)}${getSvg('icon-copy', iconCopyPaths)}</div>`;
+document.body.appendChild(customCursor);
+
+document.addEventListener('mousemove', (e) => {
+  customCursor.style.left = e.clientX + 'px';
+  customCursor.style.top = e.clientY + 'px';
+
+  if (lightbox.classList.contains('active')) {
+    if (e.target.closest('.lightbox-actions')) {
+      customCursor.className = '';
+    } else if (e.target.closest('#imageWrapper')) {
+      customCursor.className = 'active state-zoom';
+    } else {
+      customCursor.className = 'active state-close';
+    }
+  }
+});
+
+const copyElements = [
+  document.querySelector('.sidebar-logo'),
+  document.querySelector('.sidebar-top h1'),
+  document.querySelector('.tagline')
+];
+
+copyElements.forEach(el => {
+  if (!el) return;
+  el.style.cursor = 'none';
+
+  let copyTimeout;
+
+  el.addEventListener('mouseenter', () => {
+    customCursor.querySelector('.cursor-circle').style.backgroundColor = 'black';
+    customCursor.className = 'active state-envelope';
+  });
+
+  el.addEventListener('mouseleave', () => {
+    if (!lightbox.classList.contains('active')) {
+      customCursor.className = '';
+    }
+  });
+
+  el.addEventListener('click', () => {
+    navigator.clipboard.writeText("miraxh.tereziu@gmail.com").then(() => {
+      customCursor.className = 'active state-copy';
+      clearTimeout(copyTimeout);
+      copyTimeout = setTimeout(() => {
+        if (customCursor.classList.contains('state-copy')) {
+          customCursor.className = 'active state-envelope';
+        }
+      }, 1000);
+    });
+  });
+});
 
 fetch("images.json")
   .then(res => res.json())
@@ -46,8 +113,21 @@ function initGallery() {
     img.src = `images/thumbnails/${file}`;
     img.onload = () => {
       img.classList.add("loaded");
-      item.style.setProperty('--hover-color', getDominantColor(img));
+      const color = getDominantColor(img);
+      item.style.setProperty('--hover-color', color);
     };
+
+    item.addEventListener('mouseenter', () => {
+      const color = item.style.getPropertyValue('--hover-color');
+      customCursor.querySelector('.cursor-circle').style.backgroundColor = color;
+      customCursor.className = 'active state-click';
+    });
+
+    item.addEventListener('mouseleave', () => {
+      if (!lightbox.classList.contains('active')) {
+        customCursor.className = '';
+      }
+    });
 
     item.onclick = () => openLightbox(index);
     item.appendChild(img);
@@ -129,24 +209,8 @@ function getDominantColor(imgEl) {
 
 function setLightboxCursor(color) {
   const c = color || 'rgb(40,40,40)';
-
-  // Close cursor (X in circle) — applied to the lightbox backdrop
-  const closeSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 40 40' overflow='hidden'>
-    <circle cx='20' cy='20' r='20' fill='${c}'/>
-    <line x1='13' y1='13' x2='27' y2='27' stroke='white' stroke-width='2.5' stroke-linecap='round'/>
-    <line x1='27' y1='13' x2='13' y2='27' stroke='white' stroke-width='2.5' stroke-linecap='round'/>
-  </svg>`;
-  lightbox.style.cursor = `url("data:image/svg+xml;utf8,${encodeURIComponent(closeSvg)}") 16 16, pointer`;
-
-  // Fullscreen cursor (expand arrows in circle) — applied to the image wrapper
-  const zoomSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 40 40' overflow='hidden'>
-    <circle cx='20' cy='20' r='20' fill='${c}'/>
-    <polyline points='12,16 12,12 16,12' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/>
-    <polyline points='24,12 28,12 28,16' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/>
-    <polyline points='28,24 28,28 24,28' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/>
-    <polyline points='16,28 12,28 12,24' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/>
-  </svg>`;
-  imageWrapper.style.cursor = `url("data:image/svg+xml;utf8,${encodeURIComponent(zoomSvg)}") 16 16, zoom-in`;
+  lightbox.dataset.hoverColor = c;
+  customCursor.querySelector('.cursor-circle').style.backgroundColor = c;
 }
 
 function openLightbox(index) {
@@ -169,7 +233,17 @@ function updateLightboxImage() {
 
   lightboxImg.classList.remove("loaded");
   lightboxImg.src = "";
-  metadataDisplay.innerText = "";
+  if (metadataDisplay) metadataDisplay.innerText = "";
+  if (infoPopup) {
+    infoPopup.innerText = "";
+    infoPopup.classList.remove("has-content");
+  }
+  if (infoBtn) {
+    const c = lightbox.dataset.hoverColor || 'rgb(40,40,40)';
+    downloadBtn.style.backgroundColor = c;
+    infoBtn.style.backgroundColor = `color-mix(in srgb, ${c} 40%, white)`;
+    downloadBtn.href = `images/${filename}`;
+  }
 
   lightboxThumb.src = "";
   lightboxThumb.style.opacity = "1";
@@ -190,6 +264,8 @@ function updateLightboxImage() {
         });
       });
 
+      const resolutionStr = `${highResLoader.naturalWidth} x ${highResLoader.naturalHeight}`;
+
       if (window.EXIF) {
         EXIF.getData(highResLoader, function () {
           const model = EXIF.getTag(this, "Model");
@@ -198,7 +274,10 @@ function updateLightboxImage() {
           const exp = EXIF.getTag(this, "ExposureTime");
 
           if (!model && !fStop && !iso && !exp) {
-            metadataDisplay.innerText = "No metadata found";
+            if (infoPopup) {
+               infoPopup.innerText = resolutionStr;
+               infoPopup.classList.add("has-content");
+            }
             return;
           }
 
@@ -208,12 +287,18 @@ function updateLightboxImage() {
 
           const modelStr = model || "";
           const brand = modelStr.toLowerCase().includes("lumix") ? "" : "Lumix ";
-          const finalModelStr = brand + modelStr;
-
-          metadataDisplay.innerText = [finalModelStr, fStopStr, shutterStr, isoStr].filter(Boolean).join(" • ");
+          const finalModelStr = modelStr ? brand + modelStr : "";
+          
+          if (infoPopup) {
+            infoPopup.innerText = [finalModelStr, resolutionStr, fStopStr, shutterStr, isoStr].filter(Boolean).join("\n");
+            infoPopup.classList.add("has-content");
+          }
         });
       } else {
-        metadataDisplay.innerText = "No metadata found";
+        if (infoPopup) {
+           infoPopup.innerText = resolutionStr;
+           infoPopup.classList.add("has-content");
+        }
       }
       // Wait for the .4s opacity transition defined in CSS to finish
       // before completely hiding the thumbnail so a clean cross-fade happens.
@@ -226,6 +311,7 @@ function updateLightboxImage() {
 
 function closeLightbox() {
   lightbox.classList.remove("active");
+  customCursor.className = '';
   document.body.style.overflow = "auto";
   lightboxImg.src = "";
 }
@@ -235,6 +321,7 @@ lightbox.onclick = () => {
 };
 
 imageWrapper.onclick = (e) => {
+  if (e.target.closest('.lightbox-actions')) return; // let buttons handle their own clicks
   e.stopPropagation();
   window.open(`images/${imageFiles[currentIndex]}`, '_blank');
 };

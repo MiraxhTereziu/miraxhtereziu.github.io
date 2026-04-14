@@ -165,7 +165,7 @@ h1 {
   position: relative;
   --aspect-ratio: 1.5;
   width: calc((96vh - 80px) * var(--aspect-ratio));
-  max-width: calc(100vw - 120px);
+  max-width: calc(100vw - 160px);
   aspect-ratio: var(--aspect-ratio);
   border-radius: 8px;
   overflow: hidden;
@@ -221,7 +221,7 @@ h1 {
   cursor: pointer;
   color: white;
   transition: transform 0.2s ease, filter 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 0;
 }
 
@@ -252,7 +252,7 @@ h1 {
   transition: opacity 0.2s ease, transform 0.2s ease;
   min-width: max-content;
   text-align: right;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .action-btn-wrapper:hover .info-popup.has-content {
@@ -290,11 +290,30 @@ h1 {
   fill: white;
 }
 
-#custom-cursor.state-click #icon-click { opacity: 1; transform: scale(1); }
-#custom-cursor.state-close #icon-close { opacity: 1; transform: scale(1); }
-#custom-cursor.state-zoom #icon-zoom { opacity: 1; transform: scale(1); }
-#custom-cursor.state-envelope #icon-envelope { opacity: 1; transform: scale(1); }
-#custom-cursor.state-copy #icon-copy { opacity: 1; transform: scale(1); }
+#custom-cursor.state-click #icon-click {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#custom-cursor.state-close #icon-close {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#custom-cursor.state-zoom #icon-zoom {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#custom-cursor.state-envelope #icon-envelope {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#custom-cursor.state-copy #icon-copy {
+  opacity: 1;
+  transform: scale(1);
+}
 
 #custom-cursor.active .cursor-circle {
   transform: translate(-50%, -50%) scale(1);
@@ -304,7 +323,8 @@ h1 {
   cursor: none;
 }
 
-.lightbox.active, .lightbox.active * {
+.lightbox.active,
+.lightbox.active * {
   cursor: none !important;
 }
 

@@ -26,16 +26,17 @@ customCursor.innerHTML = `<div class="cursor-circle">${getSvg('icon-click', icon
 document.body.appendChild(customCursor);
 
 document.addEventListener('mousemove', (e) => {
-  customCursor.style.left = e.clientX + 'px';
-  customCursor.style.top = e.clientY + 'px';
+  customCursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
 
   if (lightbox.classList.contains('active')) {
-    if (e.target.closest('.lightbox-actions')) {
-      customCursor.className = '';
-    } else if (e.target.closest('#imageWrapper')) {
-      customCursor.className = 'active state-zoom';
-    } else {
-      customCursor.className = 'active state-close';
+    if (e.target.nodeType === 1) { // ensure it is an Element before calling closest
+      if (e.target.closest('.lightbox-actions')) {
+        customCursor.className = '';
+      } else if (e.target.closest('#imageWrapper')) {
+        customCursor.className = 'active state-zoom';
+      } else {
+        customCursor.className = 'active state-close';
+      }
     }
   }
 });
@@ -137,9 +138,9 @@ function initGallery() {
 
 function getDominantColor(imgEl) {
   const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  // Sample at a small size for speed
-  const SIZE = 80;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  // Sample at a smaller size for high speed
+  const SIZE = 40;
   canvas.width = SIZE;
   canvas.height = SIZE;
   ctx.drawImage(imgEl, 0, 0, SIZE, SIZE);
@@ -252,7 +253,7 @@ function updateLightboxImage() {
   const highResLoader = new Image();
   highResLoader.src = `images/${filename}`;
 
-  highResLoader.onload = function () {
+  highResLoader.decode().then(() => {
     if (highResLoader.src.includes(imageFiles[currentIndex])) {
       lightboxImg.src = highResLoader.src;
 
@@ -267,37 +268,41 @@ function updateLightboxImage() {
       const resolutionStr = `${highResLoader.naturalWidth} x ${highResLoader.naturalHeight}`;
 
       if (window.EXIF) {
-        EXIF.getData(highResLoader, function () {
-          const model = EXIF.getTag(this, "Model");
-          const fStop = EXIF.getTag(this, "FNumber");
-          const iso = EXIF.getTag(this, "ISOSpeedRatings");
-          const exp = EXIF.getTag(this, "ExposureTime");
+        // Process EXIF loosely in the background to avoid blocking the slide animation
+        setTimeout(() => {
+          if (!highResLoader.src.includes(imageFiles[currentIndex])) return;
+          EXIF.getData(highResLoader, function () {
+            const model = EXIF.getTag(this, "Model");
+            const fStop = EXIF.getTag(this, "FNumber");
+            const iso = EXIF.getTag(this, "ISOSpeedRatings");
+            const exp = EXIF.getTag(this, "ExposureTime");
 
-          if (!model && !fStop && !iso && !exp) {
-            if (infoPopup) {
-               infoPopup.innerText = resolutionStr;
-               infoPopup.classList.add("has-content");
+            if (!model && !fStop && !iso && !exp) {
+              if (infoPopup) {
+                infoPopup.innerText = resolutionStr;
+                infoPopup.classList.add("has-content");
+              }
+              return;
             }
-            return;
-          }
 
-          const fStopStr = fStop ? `f/${fStop}` : "";
-          const isoStr = iso ? `ISO ${iso}` : "";
-          const shutterStr = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
+            const fStopStr = fStop ? `f/${fStop}` : "";
+            const isoStr = iso ? `ISO ${iso}` : "";
+            const shutterStr = exp ? (exp >= 1 ? `${exp}s` : `1/${Math.round(1 / exp)}s`) : "";
 
-          const modelStr = model || "";
-          const brand = modelStr.toLowerCase().includes("lumix") ? "" : "Lumix ";
-          const finalModelStr = modelStr ? brand + modelStr : "";
-          
-          if (infoPopup) {
-            infoPopup.innerText = [finalModelStr, resolutionStr, fStopStr, shutterStr, isoStr].filter(Boolean).join("\n");
-            infoPopup.classList.add("has-content");
-          }
-        });
+            const modelStr = model || "";
+            const brand = modelStr.toLowerCase().includes("lumix") ? "" : "Lumix ";
+            const finalModelStr = modelStr ? brand + modelStr : "";
+
+            if (infoPopup) {
+              infoPopup.innerText = [finalModelStr, resolutionStr, fStopStr, shutterStr, isoStr].filter(Boolean).join("\n");
+              infoPopup.classList.add("has-content");
+            }
+          });
+        }, 10);
       } else {
         if (infoPopup) {
-           infoPopup.innerText = resolutionStr;
-           infoPopup.classList.add("has-content");
+          infoPopup.innerText = resolutionStr;
+          infoPopup.classList.add("has-content");
         }
       }
       // Wait for the .4s opacity transition defined in CSS to finish
@@ -306,7 +311,11 @@ function updateLightboxImage() {
         lightboxThumb.style.opacity = "0";
       }, 450);
     }
-  };
+  }).catch(() => {
+    // Fallback if decode fails or is interrupted
+    lightboxImg.src = highResLoader.src;
+    lightboxImg.classList.add("loaded");
+  });
 }
 
 function closeLightbox() {
@@ -316,12 +325,12 @@ function closeLightbox() {
   lightboxImg.src = "";
 }
 
-lightbox.onclick = () => {
+lightbox.onclick = (e) => {
+  if (e.target.closest('.lightbox-actions')) return;
   closeLightbox();
 };
 
 imageWrapper.onclick = (e) => {
-  if (e.target.closest('.lightbox-actions')) return; // let buttons handle their own clicks
   e.stopPropagation();
   window.open(`images/${imageFiles[currentIndex]}`, '_blank');
 };

@@ -20,6 +20,12 @@ html.lenis body {
   pointer-events: none;
 }
 
+:root {
+  --inner-radius: 8px;
+  --border-thickness: 12px;
+  --outer-radius: calc(var(--inner-radius) + var(--border-thickness));
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -81,15 +87,11 @@ h1 {
 
 .gallery-grid {
   column-count: 3;
-  column-gap: 1.5em;
+  column-gap: var(--border-thickness);
 }
 
 .gallery-item {
-  --inner-radius: 8px;
-  --border-thickness: 12px;
-  --outer-radius: calc(var(--inner-radius) + var(--border-thickness));
-
-  margin-bottom: 1.5em;
+  margin-bottom: var(--border-thickness);
   break-inside: avoid;
   cursor: pointer;
   border-radius: var(--outer-radius);
@@ -237,22 +239,28 @@ h1 {
 
 .info-popup {
   position: absolute;
-  bottom: calc(100% + 12px);
-  right: 0;
-  background: white;
-  color: black;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  pointer-events: none;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  color: #888;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  white-space: nowrap;
+  text-align: center;
+  margin-top: 10px;
+  padding: 0 2px;
   opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  min-width: max-content;
-  text-align: right;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transform: translateY(4px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+  max-height: 0;
+  overflow: hidden;
+}
+
+.info-popup.has-content {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 120px;
 }
 
 .action-btn-wrapper:hover .info-popup.has-content {
@@ -364,5 +372,37 @@ h1 {
 
   .gallery-grid {
     column-count: 1;
+  }
+
+  .image-wrapper {
+    max-width: calc(100vw - 32px);
+  }
+
+  .lightbox-actions {
+    position: fixed;
+    left: auto;
+    right: 20px;
+    bottom: 20px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  #custom-cursor {
+    display: none !important;
+  }
+
+  .gallery-item {
+    cursor: pointer !important;
+  }
+
+  .lightbox.active,
+  .lightbox.active * {
+    cursor: auto !important;
+  }
+
+  .sidebar-logo,
+  .sidebar-top h1,
+  .tagline {
+    cursor: auto !important;
   }
 }
